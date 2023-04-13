@@ -1,6 +1,4 @@
 # load packages----
-# devtools::load_all()
-
 library(dotenv)
 library(dplyr)
 library(pacta.supervisor.analysis)
