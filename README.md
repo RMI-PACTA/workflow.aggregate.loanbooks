@@ -160,15 +160,15 @@ Case description: Multiple business operations are in the PACTA scope and are co
 
 - **Rule 2a)**
 
-|  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
+  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
 
-|  Outcome: Loans are to be split evenly by the number of sectors.
+  Outcome: Loans are to be split evenly by the number of sectors.
 
 - **Rule 2b)**
 
-|  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
+  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
 
-|  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
 
 ### Methodological note: Sector split for energy companies
 
