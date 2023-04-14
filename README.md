@@ -150,25 +150,25 @@ When companies operate in multiple sectors within the PACTA scope the following 
 
 **Rule 1:**
 
-Case description: Secondary business operation is in the PACTA scope but only supportive to the main business line.
+- Case description: Secondary business operation is in the PACTA scope but only supportive to the main business line.
 
-Outcome: The secondary business operation is not to be included in the analysis.
+- Outcome: The secondary business operation is not to be included in the analysis.
 
 **Rule 2:**
 
-Case description: Multiple business operations are in the PACTA scope and are considered main business lines.
+- Case description: Multiple business operations are in the PACTA scope and are considered main business lines.
 
-- **Rule 2a)**
+   **Rule 2a)**
 
-  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
+  - Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
 
-  Outcome: Loans are to be split evenly by the number of sectors.
+  - Outcome: Loans are to be split evenly by the number of sectors.
 
-- **Rule 2b)**
+   **Rule 2b)**
 
-  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
+  - Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
 
-  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+  - Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
 
 ### Methodological note: Sector split for energy companies
 
