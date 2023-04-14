@@ -170,7 +170,7 @@ When companies operate in multiple sectors within the PACTA scope the following 
 
   - Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
 
-### Methodological note: Sector split for energy companies
+## Methodological note: Sector split for energy companies
 
 Where a company has activities in multiple energy-related sectors, a common output unit of primary energy is needed to compare quantities across sectors. The chosen common unit of primary energy is million tons of oil equivalent (Mtoe) and is converted for the respective sectors as follows:
 
