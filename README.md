@@ -144,7 +144,7 @@ script `prep_sector_split_energy_companies.R`, which will output the
 file `companies_sector_split.csv` into the matched directory as set up
 in `.env`.
 
-### Usgae of the sector split
+### Usage of the sector split
 
 When companies operate in multiple sectors within the PACTA scope the following rules can be used to split the loan value between the different sectors:
 
@@ -158,19 +158,19 @@ Outcome: The secondary business operation is not to be included in the analysis.
 
 Case description: Multiple business operations are in the PACTA scope and are considered main business lines.
 
-**- Rule 2a)**
+- **Rule 2a)**
 
-  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
+|  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
 
-  Outcome: Loans are to be split evenly by the number of sectors.
+|  Outcome: Loans are to be split evenly by the number of sectors.
 
-**- Rule 2b)**
+- **Rule 2b)**
 
-  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
+|  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
 
-  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+|  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
 
-### Methodology: Sector Split
+### Methodological note: Sector split for energy companies
 
 Where a company has activities in multiple energy-related sectors, a common output unit of primary energy is needed to compare quantities across sectors. The chosen common unit of primary energy is million tons of oil equivalent (Mtoe) and is converted for the respective sectors as follows:
 
