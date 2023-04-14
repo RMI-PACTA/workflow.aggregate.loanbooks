@@ -184,16 +184,18 @@ It follows that to calculate the primary energy use ($E$) for a company $c$ per 
 
 $$E_{a,b=power,c} = \dfrac{g_{a,b=power,c}}{P_{a}}$$
 
-The primary energy efficiency factors are taken from the IEA 10.
+The primary energy efficiency factors are taken from the IEA[^1].
 
-Then in the next step the conversion to common units of primary energy across sectors is made. The conversion factors ($F$) are taken from the IEA World Energy Balances 2022 (LINK) publication and the IEA Unit Converter (LINK).
+[^1]: IEA (2008) Energy efficiency indicators for public electricity production from fossil fuels, IEA Information Paper, OECD/IEA, July 2008
 
-The output in Mtoe for a company c in sector b with conversion factor F is:
+Then in the next step the conversion to common units of primary energy across sectors is made. The conversion factors ($F$) are taken from the [IEA World Energy Balances 2022](http://wds.iea.org/wds/pdf/WORLDBAL_Documentation.pdf) publication and the [IEA Unit Converter](https://www.iea.org/data-and-statistics/data-tools/unit-converter).
+
+The output in Mtoe for $a$ company $c$ in sector $b$ with conversion factor $F$ is:
 
 $$E_{b,c}^{Mtoe} = \sum_{\forall a \in b} E_{a,b,c} \times F_{b}$$
 
 The relative production weighting per sector $b$ for a company $c$, is then calculated as:
 
-$$sector \: share_{a,b=power,c} = \dfrac{E_{b,c}^{Mtoe}}{\sum_{b} E_{b,c}^{Mtoe}}$$
+$$sector\:share_{a,b=power,c} = \dfrac{E_{b,c}^{Mtoe}}{\sum_{b} E_{b,c}^{Mtoe}}$$
 
 This company level sector split can now be used as a proxy to attribute parts of a loan to different transition relevant sectors a company operates in, taking into account the relative importance of each sector in the companies production profile. Note that the split only refers to the energy related in-sope PACTA sectors. This means that if a company additionally operates in another non-energy PACTA sector, the split should only be applied to the share of a loan that is attributed to the energy sectors.
