@@ -1,5 +1,7 @@
-# workflow.aggregate.loanbooks
+# workflow.aggregate.loanbooks <img src="man/figures/logo.png" align="right" width="120" />
 This repository produces analyses used to compare the loan books across many banks, including bulk PACTA runs and aggregation metrics including plots.
+
+It also contains a script that can be used to derive production-based sector split values for companies that are active across multiple energy related in-scope PACTA sectors.
 
 <!-- badges: start -->
 
@@ -113,9 +115,9 @@ companies that have at least two energy-related main business lines
 withing PACTA scope (at least two of: coal mining, upstream oil & gas,
 power generation). This sector split is meant to help with allocating
 portions of a loan to each of the relevant business lines. As such, it
-allows for considering more than one main sector and it can improve
-covering transition activities as well as simply reflecting better the
-multi-sector focus of some companies.
+allows for considering more than one main sector. This improves
+coverage of transition activities and reflects better the multi-sector focus of
+some companies.
 
 To get this sector split, you will need some additional input files:
 
@@ -141,3 +143,57 @@ You can now get the company sector split by running the root level
 script `prep_sector_split_energy_companies.R`, which will output the
 file `companies_sector_split.csv` into the matched directory as set up
 in `.env`.
+
+### Usgae of the sector split
+
+When companies operate in multiple sectors within the PACTA scope the following rules can be used to split the loan value between the different sectors:
+
+**Rule 1:**
+
+Case description: Secondary business operation is in the PACTA scope but only supportive to the main business line.
+
+Outcome: The secondary business operation is not to be included in the analysis.
+
+**Rule 2:**
+
+Case description: Multiple business operations are in the PACTA scope and are considered main business lines.
+
+**- Rule 2a)**
+
+  Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
+
+  Outcome: Loans are to be split evenly by the number of sectors.
+
+**- Rule 2b)**
+
+  Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
+
+  Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+
+### Methodology: Sector Split
+
+Where a company has activities in multiple energy-related sectors, a common output unit of primary energy is needed to compare quantities across sectors. The chosen common unit of primary energy is million tons of oil equivalent (Mtoe) and is converted for the respective sectors as follows:
+
+- coal mining sector is converted from metric tonnes of coal
+- upstream oil & gas is converted from gigajoules (GJ)
+- power generation is converted from megawatt hours (MWh)
+
+In order to compare the power generation sector to the upstream fossil fuel extractive sectors a further conversion is needed to account for the primary energy efficiency of fossil fuel-based power generation. This is because a large proportion of the thermal energy from burning fuel is not converted into electricity. This loss is taken into account by using primary energy efficiency factors for the respective technologies in the power sector. This step is not required for low carbon technologies because even though some have relatively low primary energy efficiencies (e.g. geothermal power at 10%) the input energy is not a fossil fuel and so from an accounting point of view does not contribute to the exposure of a company to fossil fuel production and use.
+
+It follows that to calculate the primary energy use ($E$) for a company $c$ per technology $a$ in sector $b = Power$ after accounting for primary energy efficiency factor $P$ (where $g$ is initial electricity generation before conversion to primary energy use) the following formula shall be used:
+
+$$E_{a,b=power,c} = \dfrac{g_{a,b=power,c}}{P_{a}}$$
+
+The primary energy efficiency factors are taken from the IEA 10.
+
+Then in the next step the conversion to common units of primary energy across sectors is made. The conversion factors ($F$) are taken from the IEA World Energy Balances 2022 (LINK) publication and the IEA Unit Converter (LINK).
+
+The output in Mtoe for a company c in sector b with conversion factor F is:
+
+$$E_{b,c}^{Mtoe} = \sum_{\forall a \in b} E_{a,b,c} \times F_{b}$$
+
+The relative production weighting per sector $b$ for a company $c$, is then calculated as:
+
+$$sector \: share_{a,b=power,c} = \dfrac{E_{b,c}^{Mtoe}}{\sum_{b} E_{b,c}^{Mtoe}}$$
+
+This company level sector split can now be used as a proxy to attribute parts of a loan to different transition relevant sectors a company operates in, taking into account the relative importance of each sector in the companies production profile. Note that the split only refers to the energy related in-sope PACTA sectors. This means that if a company additionally operates in another non-energy PACTA sector, the split should only be applied to the share of a loan that is attributed to the energy sectors.
