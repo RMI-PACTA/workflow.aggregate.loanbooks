@@ -338,8 +338,6 @@ tms_result_for_aggregation <- tms_result_for_aggregation %>%
 company_technology_deviation_tms <- tms_result_for_aggregation %>%
   calculate_company_tech_deviation(
     technology_direction = technology_direction,
-    scenario_trajectory = scenario_input_tms,
-    green_or_brown = green_or_brown_aggregate_alignment,
     scenario_source = scenario_source_input,
     scenario = scenario_select
     # bridge_tech = "gascap"
