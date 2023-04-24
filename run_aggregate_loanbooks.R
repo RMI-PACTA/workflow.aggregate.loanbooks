@@ -452,7 +452,6 @@ if (scenario_source_input == "geco_2021" & scenario_select == "1.5c") {scenario_
 
 company_aggregated_alignment_net_sda <- sda_result_for_aggregation %>%
   calculate_company_aggregate_alignment_sda(
-    scenario_emission_intensities = scenario_input_sda,
     scenario_source = scenario_source_input,
     scenario = scenario_select_sda
   )
