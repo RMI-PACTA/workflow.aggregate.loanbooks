@@ -39,6 +39,7 @@ scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
 scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
 region_select <- Sys.getenv("PARAM_REGION_SELECT")
 start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
 benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
 
 # TODO: add check if all files exist, resort to test files if not
@@ -339,8 +340,9 @@ company_technology_deviation_tms <- tms_result_for_aggregation %>%
   calculate_company_tech_deviation(
     technology_direction = technology_direction,
     scenario_source = scenario_source_input,
-    scenario = scenario_select
-    # bridge_tech = "gascap"
+    scenario = scenario_select,
+    # bridge_tech = "gascap",
+    time_frame = time_frame_select
   )
 
 company_technology_deviation_tms %>%
@@ -453,7 +455,8 @@ if (scenario_source_input == "geco_2021" & scenario_select == "1.5c") {scenario_
 company_aggregated_alignment_net_sda <- sda_result_for_aggregation %>%
   calculate_company_aggregate_alignment_sda(
     scenario_source = scenario_source_input,
-    scenario = scenario_select_sda
+    scenario = scenario_select_sda,
+    time_frame = time_frame_select
   )
 
 company_aggregated_alignment_net_sda %>%
