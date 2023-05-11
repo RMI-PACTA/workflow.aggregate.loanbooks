@@ -38,9 +38,6 @@ if (file.exists(here::here(".env"))) {
 scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
 scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
 region_select <- Sys.getenv("PARAM_REGION_SELECT")
-# start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
-# time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
-# benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
 
 # TODO: add check if all files exist, resort to test files if not
 
