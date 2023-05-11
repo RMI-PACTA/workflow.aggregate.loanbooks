@@ -164,12 +164,14 @@ generate_individual_outputs <- function(data,
                                         target_type = c("tms", "sda"),
                                         group_id,
                                         scenario_source,
-                                        target_scenario,
+                                        scenario,
                                         region = "global",
                                         sector) {
 
   # match input values
   target_type <- match.arg(target_type)
+
+  target_scenario <- paste0("target_", scenario)
 
   # validate input values
   validate_input_args_generate_individual_outputs(
@@ -181,6 +183,7 @@ generate_individual_outputs <- function(data,
     sector = sector
   )
 
+  # TODO: add again once generate_individual_outputs() is removed from pacta.aggregate.loanbook.plots
   #validate input data
   # validate_input_data_generate_individual_outputs(
   #   data = data,
@@ -300,8 +303,17 @@ generate_individual_outputs <- function(data,
         }
       } else {
         # plot convergence chart for given sector
+        adjusted_scenario <- paste0("adjusted_scenario_", scenario)
+
         plot_emission_intensity <- data %>%
-          dplyr::filter(!grepl("adjusted_", .data$emission_factor_metric)) %>%
+          dplyr::filter(
+            .data$emission_factor_metric %in% c(
+              "projected",
+              "corporate_economy",
+              .env$target_scenario,
+              .env$adjusted_scenario
+            )
+          ) %>%
           r2dii.plot::plot_emission_intensity(
             span_5yr = FALSE,
             convert_label = r2dii.plot::to_title
@@ -315,7 +327,14 @@ generate_individual_outputs <- function(data,
 
         # export convergence chart
         data %>%
-          dplyr::filter(!grepl("adjusted_", .data$emission_factor_metric)) %>%
+          dplyr::filter(
+            .data$emission_factor_metric %in% c(
+              "projected",
+              "corporate_economy",
+              .env$target_scenario,
+              .env$adjusted_scenario
+            )
+          ) %>%
           readr::write_csv(
             file = file.path(
               output_directory,
@@ -430,6 +449,9 @@ validate_input_data_generate_individual_outputs <- function(data,
 ## run automatic result generation ----------
 
 # TODO: get all available sectors and produce outputs for them all)
+result_groups_tms <- results_tms_total %>%
+  distinct(region, sector)
+
 for (tms_i in unique_groups_tms) {
   generate_individual_outputs(
     data = results_tms_total,
@@ -438,13 +460,16 @@ for (tms_i in unique_groups_tms) {
     target_type = "tms",
     group_id = tms_i,
     scenario_source = scenario_source_input,
-    target_scenario = glue::glue("target_{scenario_select}"),
+    scenario = scenario_select,
     region = "global",
     sector = "power"
   )
 }
 
 # TODO: get all available sectors and produce outputs for them all)
+result_groups_sda <- results_sda_total %>%
+  distinct(region, sector)
+
 for (sda_i in unique_groups_sda) {
   generate_individual_outputs(
     data = results_sda_total,
@@ -453,7 +478,7 @@ for (sda_i in unique_groups_sda) {
     target_type = "sda",
     group_id = sda_i,
     scenario_source = scenario_source_input,
-    target_scenario = glue::glue("target_{scenario_select}"),
+    scenario = scenario_select,
     region = "global",
     sector = "steel"
   )
