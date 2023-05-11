@@ -449,101 +449,199 @@ validate_input_data_generate_individual_outputs <- function(data,
 ## run automatic result generation ----------
 
 ### automotive----
+sector_select <- "automotive"
 for (tms_i in unique_groups_tms) {
-  generate_individual_outputs(
-    data = results_tms_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "tms",
-    group_id = tms_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "automotive"
-  )
+  available_rows <- results_tms_total %>%
+    dplyr::filter(
+      group_id == tms_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_tms_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "tms",
+      group_id = tms_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 ### coal----
+sector_select <- "coal"
 for (tms_i in unique_groups_tms) {
-  generate_individual_outputs(
-    data = results_tms_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "tms",
-    group_id = tms_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "coal"
-  )
+  available_rows <- results_tms_total %>%
+    dplyr::filter(
+      group_id == tms_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_tms_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "tms",
+      group_id = tms_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 ### oil and gas----
+sector_select <- "oil and gas"
 for (tms_i in unique_groups_tms) {
-  generate_individual_outputs(
-    data = results_tms_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "tms",
-    group_id = tms_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "oil and gas"
-  )
+  available_rows <- results_tms_total %>%
+    dplyr::filter(
+      group_id == tms_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_tms_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "tms",
+      group_id = tms_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 ### power----
+sector_select <- "power"
 for (tms_i in unique_groups_tms) {
-  generate_individual_outputs(
-    data = results_tms_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "tms",
-    group_id = tms_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "power"
-  )
+  available_rows <- results_tms_total %>%
+    dplyr::filter(
+      group_id == tms_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_tms_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "tms",
+      group_id = tms_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 
 ### aviation----
+sector_select <- "aviation"
 for (sda_i in unique_groups_sda) {
-  generate_individual_outputs(
-    data = results_sda_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "sda",
-    group_id = sda_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "aviation"
-  )
+  available_rows <- results_sda_total %>%
+    dplyr::filter(
+      group_id == sda_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$emission_factor_metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_sda_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "sda",
+      group_id = sda_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 ### cement----
+sector_select <- "cement"
 for (sda_i in unique_groups_sda) {
-  generate_individual_outputs(
-    data = results_sda_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "sda",
-    group_id = sda_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "cement"
-  )
+  available_rows <- results_sda_total %>%
+    dplyr::filter(
+      group_id == sda_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$emission_factor_metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_sda_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "sda",
+      group_id = sda_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
 ### steel----
+sector_select <- "steel"
 for (sda_i in unique_groups_sda) {
-  generate_individual_outputs(
-    data = results_sda_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "sda",
-    group_id = sda_i,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    region = "global",
-    sector = "steel"
-  )
+  available_rows <- results_sda_total %>%
+    dplyr::filter(
+      group_id == sda_i,
+      scenario_source == scenario_source_input,
+      grepl(scenario_select, .data$emission_factor_metric),
+      region == region_select,
+      sector == sector_select
+    ) %>%
+    nrow()
+  if (available_rows > 0) {
+    generate_individual_outputs(
+      data = results_sda_total,
+      matched_loanbook = matched_loanbook,
+      output_directory = output_path_standard,
+      target_type = "sda",
+      group_id = sda_i,
+      scenario_source = scenario_source_input,
+      scenario = scenario_select,
+      region = region_select,
+      sector = sector_select
+    )
+  } else {
+    next()
+  }
 }
