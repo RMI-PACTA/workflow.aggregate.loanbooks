@@ -188,8 +188,6 @@ generate_individual_outputs <- function(data,
   #   target_type = target_type
   # )
 
-  # tryCatch(
-  #   {
       # create sub directory for the selected institute
       dir.create(file.path(output_directory, group_id), showWarnings = FALSE)
 
@@ -262,8 +260,6 @@ generate_individual_outputs <- function(data,
           dplyr::pull()
 
         for (i in 1:length(technologies_to_plot)) {
-          # tryCatch(
-          #   {
               data_trajectory <- data %>%
                 dplyr::filter(
                   .data$technology == .env$technologies_to_plot[i],
@@ -301,12 +297,6 @@ generate_individual_outputs <- function(data,
                 device = "png",
                 path = file.path(output_directory, group_id)
               )
-          #   },
-          #   error = function(e) {
-          #     log_text <- glue::glue("{Sys.time()} - group: {group_id} Problem in plotting trajectory chart for: {sector} {i} \n")
-          #     write(log_text, file = file.path(output_directory, "error_messages.txt"), append = TRUE)
-          #   }
-          # )
         }
       } else {
         # plot convergence chart for given sector
@@ -356,16 +346,6 @@ generate_individual_outputs <- function(data,
             glue::glue("companies_included_{sector}.csv")
           )
         )
-    # },
-    # error = function(e) {
-    #   log_text <- glue::glue(
-    #     "{Sys.time()} Problem in generating SDA related outputs for group:
-    #     {group_id}, sector: {sector}, region: {region}, scenario_source:
-    #     {scenario_source}, target_scenario: {target_scenario}. \n"
-    #   )
-    #   write(log_text, file = file.path(output_directory, "error_messages.txt"), append = TRUE)
-    # }
-  # )
 
 }
 
