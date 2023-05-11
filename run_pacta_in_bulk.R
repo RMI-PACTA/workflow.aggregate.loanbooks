@@ -38,9 +38,9 @@ if (file.exists(here::here(".env"))) {
 scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
 scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
 region_select <- Sys.getenv("PARAM_REGION_SELECT")
-start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
-time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
-benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
+# start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+# time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
+# benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
 
 # TODO: add check if all files exist, resort to test files if not
 
@@ -122,8 +122,8 @@ for (i in unique_loanbooks_matched) {
     dplyr::bind_rows(results_sda_i)
 }
 
-# results_sda_total %>%
-#   readr::write_csv(file.path(output_path_standard, "sda_results_all_groups.csv"))
+results_sda_total %>%
+  readr::write_csv(file.path(output_path_standard, "sda_results_all_groups.csv"))
 
 
 ## generate TMS outputs----
@@ -147,8 +147,8 @@ for (i in unique_loanbooks_matched) {
     dplyr::bind_rows(results_tms_i)
 }
 
-# results_tms_total %>%
-#   readr::write_csv(file.path(output_path_standard, "tms_results_all_groups.csv"))
+results_tms_total %>%
+  readr::write_csv(file.path(output_path_standard, "tms_results_all_groups.csv"))
 
 # generate P4B plots----
 
