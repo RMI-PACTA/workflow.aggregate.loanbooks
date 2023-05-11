@@ -448,10 +448,49 @@ validate_input_data_generate_individual_outputs <- function(data,
 
 ## run automatic result generation ----------
 
-# TODO: get all available sectors and produce outputs for them all)
-result_groups_tms <- results_tms_total %>%
-  distinct(region, sector)
-
+### automotive----
+for (tms_i in unique_groups_tms) {
+  generate_individual_outputs(
+    data = results_tms_total,
+    matched_loanbook = matched_loanbook,
+    output_directory = output_path_standard,
+    target_type = "tms",
+    group_id = tms_i,
+    scenario_source = scenario_source_input,
+    scenario = scenario_select,
+    region = "global",
+    sector = "automotive"
+  )
+}
+### coal----
+for (tms_i in unique_groups_tms) {
+  generate_individual_outputs(
+    data = results_tms_total,
+    matched_loanbook = matched_loanbook,
+    output_directory = output_path_standard,
+    target_type = "tms",
+    group_id = tms_i,
+    scenario_source = scenario_source_input,
+    scenario = scenario_select,
+    region = "global",
+    sector = "coal"
+  )
+}
+### oil and gas----
+for (tms_i in unique_groups_tms) {
+  generate_individual_outputs(
+    data = results_tms_total,
+    matched_loanbook = matched_loanbook,
+    output_directory = output_path_standard,
+    target_type = "tms",
+    group_id = tms_i,
+    scenario_source = scenario_source_input,
+    scenario = scenario_select,
+    region = "global",
+    sector = "oil and gas"
+  )
+}
+### power----
 for (tms_i in unique_groups_tms) {
   generate_individual_outputs(
     data = results_tms_total,
@@ -466,10 +505,35 @@ for (tms_i in unique_groups_tms) {
   )
 }
 
-# TODO: get all available sectors and produce outputs for them all)
-result_groups_sda <- results_sda_total %>%
-  distinct(region, sector)
-
+### aviation----
+for (sda_i in unique_groups_sda) {
+  generate_individual_outputs(
+    data = results_sda_total,
+    matched_loanbook = matched_loanbook,
+    output_directory = output_path_standard,
+    target_type = "sda",
+    group_id = sda_i,
+    scenario_source = scenario_source_input,
+    scenario = scenario_select,
+    region = "global",
+    sector = "aviation"
+  )
+}
+### cement----
+for (sda_i in unique_groups_sda) {
+  generate_individual_outputs(
+    data = results_sda_total,
+    matched_loanbook = matched_loanbook,
+    output_directory = output_path_standard,
+    target_type = "sda",
+    group_id = sda_i,
+    scenario_source = scenario_source_input,
+    scenario = scenario_select,
+    region = "global",
+    sector = "cement"
+  )
+}
+### steel----
 for (sda_i in unique_groups_sda) {
   generate_individual_outputs(
     data = results_sda_total,
