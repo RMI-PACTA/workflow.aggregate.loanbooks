@@ -1,7 +1,7 @@
 # load packages----
 library(dotenv)
 library(dplyr)
-# library(pacta.aggregate.loanbook.plots)
+library(pacta.aggregate.loanbook.plots)
 library(r2dii.analysis)
 library(r2dii.data)
 library(r2dii.match)
@@ -183,13 +183,15 @@ generate_individual_outputs <- function(data,
     sector = sector
   )
 
-  # TODO: add again once generate_individual_outputs() is removed from pacta.aggregate.loanbook.plots
+  # TODO: consider adding validate_data_has_expected_cols() to the workflow.
+  # At the moment this is the only reason why library(pacta.aggregate.loanbook.plots)
+  # is called in this workfow
   #validate input data
-  # validate_input_data_generate_individual_outputs(
-  #   data = data,
-  #   matched_loanbook = matched_loanbook,
-  #   target_type = target_type
-  # )
+  validate_input_data_generate_individual_outputs(
+    data = data,
+    matched_loanbook = matched_loanbook,
+    target_type = target_type
+  )
 
       # create sub directory for the selected institute
       dir.create(file.path(output_directory, group_id), showWarnings = FALSE)
