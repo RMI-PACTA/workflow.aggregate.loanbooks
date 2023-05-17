@@ -123,102 +123,14 @@ for (i in benchmark_regions) {
 # matched_benchmark %>%
 #   readr::write_csv(file.path(input_path_matched, "matched_prio_benchmark.csv"))
 
-
-# generate all P4B outputs----
-unique_loanbooks_matched <- unique(matched_loanbook$group_id)
-
-## generate SDA outputs----
-results_sda_total <- NULL
-
-for (i in unique_loanbooks_matched) {
-  matched_i <- matched_loanbook %>%
-    dplyr::filter(.data$group_id == i) %>%
-    dplyr::select(-"group_id")
-
-  results_sda_i <- matched_i %>%
-    target_sda(
-      abcd = abcd,
-      co2_intensity_scenario = scenario_input_sda,
-      region_isos = region_isos_select
-    ) %>%
-    dplyr::mutate(group_id = .env$i)
-
-  results_sda_total <- results_sda_total %>%
-    dplyr::bind_rows(results_sda_i)
-}
-
-# results_sda_total %>%
-#   readr::write_csv(file.path(output_path_standard, "sda_results_all_groups.csv"))
-
-
-## generate TMS outputs----
-
-results_tms_total <- NULL
-
-for (i in unique_loanbooks_matched) {
-  matched_i <- matched_loanbook %>%
-    dplyr::filter(.data$group_id == i) %>%
-    dplyr::select(-"group_id")
-
-  results_tms_i <- matched_i %>%
-    target_market_share(
-      abcd = abcd,
-      scenario = scenario_input_tms,
-      region_isos = region_isos_select
-    ) %>%
-    dplyr::mutate(group_id = .env$i)
-
-  results_tms_total <- results_tms_total %>%
-    dplyr::bind_rows(results_tms_i)
-}
-
-# results_tms_total %>%
-#   readr::write_csv(file.path(output_path_standard, "tms_results_all_groups.csv"))
-
-# generate P4B plots----
-
-# results_tms_total <- readr::read_csv(file.path(output_path_standard, "tms_results_all_groups.csv"), col_types = readr::cols())
-# results_sda_total <- readr::read_csv(file.path(output_path_standard, "sda_results_all_groups.csv"), col_types = readr::cols())
-# matched_loanbook <- readr::read_csv("file.path(input_path_matched, "matched_prio_all_groups.csv"), col_types = readr::cols())
+# aggregate P4B alignment----
 
 ## retrieve set of unique groups to loop over----
-unique_groups_tms <- unique(results_tms_total$group_id)
-unique_groups_sda <- unique(results_sda_total$group_id)
-
-## run automatic result generation ----------
-
-# TODO: get all available sectors and produce outputs for them all)
-for (tms_i in unique_groups_tms) {
-  generate_individual_outputs(
-    data = results_tms_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "tms",
-    group_id = tms_i,
-    scenario_source = scenario_source_input,
-    target_scenario = glue::glue("target_{scenario_select}"),
-    region = "global",
-    sector = "power"
-  )
-}
-
-# TODO: get all available sectors and produce outputs for them all)
-for (sda_i in unique_groups_sda) {
-  generate_individual_outputs(
-    data = results_sda_total,
-    matched_loanbook = matched_loanbook,
-    output_directory = output_path_standard,
-    target_type = "sda",
-    group_id = sda_i,
-    scenario_source = scenario_source_input,
-    target_scenario = glue::glue("target_{scenario_select}"),
-    region = "global",
-    sector = "steel"
-  )
-}
-
-
-# aggregate P4B alignment----
+unique_loanbooks_matched <- unique(matched_loanbook$group_id)
+unique_groups_tms <- unique_loanbooks_matched
+unique_groups_sda <- unique_loanbooks_matched
+# unique_groups_tms <- unique(results_tms_total$group_id)
+# unique_groups_sda <- unique(results_sda_total$group_id)
 
 ## set specifications----
 
