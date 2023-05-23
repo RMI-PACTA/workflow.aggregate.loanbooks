@@ -17,7 +17,6 @@ dotenv::load_dot_env()
 if (file.exists(here::here(".env"))) {
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
-  input_path_raw <- Sys.getenv("DIR_RAW")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
 
   input_path_regions_geco_2022 <- file.path(input_path_scenario, Sys.getenv("FILENAME_REGIONS_GECO_2022"))
@@ -28,7 +27,6 @@ if (file.exists(here::here(".env"))) {
 
   output_path <- Sys.getenv("DIR_OUTPUT")
   output_path_standard <- file.path(output_path, "standard")
-  output_path_aggregated <- file.path(output_path, "aggregated")
 } else {
   stop("Please set up a configuration file at the root of the repository, as
        explained in the README.md")
@@ -69,41 +67,19 @@ abcd <- readr::read_csv(file.path(input_path_abcd))
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
-# loanbook <- loanbook_test_data
-loanbook <- purrr::map_dfr(list.files(input_path_raw, full.names = T), .f = vroom::vroom, id = "group_id")
-# aggregation functions expect a group_id to be able to distinguish banks/loan books in later analysis
-loanbook <- loanbook %>%
-  dplyr::mutate(group_id = gsub(pattern = paste0(input_path_raw, "/"), replacement = "", x = .data$group_id)) %>%
-  dplyr::mutate(group_id = gsub(pattern = ".csv", replacement = "", x = .data$group_id))
-
-# match and prioritize loan book----
-unique_loanbooks_raw <- unique(loanbook$group_id)
-
-matched_loanbook <- NULL
-
-for (i in unique_loanbooks_raw) {
-  loanbook_i <- loanbook %>%
-    dplyr::filter(.data$group_id == i)
-
-  matched_i <- match_name(loanbook_i, abcd) %>%
-    prioritize()
-
-  matched_loanbook <- matched_loanbook %>%
-    dplyr::bind_rows(matched_i)
-}
-
-# matched_loanbook %>%
-#   readr::write_csv(file.path(input_path_matched, "matched_prio_all_groups.csv"))
-
+# read matched and prioritized loan book----
+matched_prioritized <- readr::read_csv(
+  file.path(input_path_matched, "matched_prio_all_groups.csv")
+)
 
 # generate all P4B outputs----
-unique_loanbooks_matched <- unique(matched_loanbook$group_id)
+unique_loanbooks_matched <- unique(matched_prioritized$group_id)
 
 ## generate SDA outputs----
 results_sda_total <- NULL
 
 for (i in unique_loanbooks_matched) {
-  matched_i <- matched_loanbook %>%
+  matched_i <- matched_prioritized %>%
     dplyr::filter(.data$group_id == i) %>%
     dplyr::select(-"group_id")
 
@@ -128,7 +104,7 @@ results_sda_total %>%
 results_tms_total <- NULL
 
 for (i in unique_loanbooks_matched) {
-  matched_i <- matched_loanbook %>%
+  matched_i <- matched_prioritized %>%
     dplyr::filter(.data$group_id == i) %>%
     dplyr::select(-"group_id")
 
@@ -149,17 +125,13 @@ results_tms_total %>%
 
 # generate P4B plots----
 
-# results_tms_total <- readr::read_csv(file.path(output_path_standard, "tms_results_all_groups.csv"), col_types = readr::cols())
-# results_sda_total <- readr::read_csv(file.path(output_path_standard, "sda_results_all_groups.csv"), col_types = readr::cols())
-# matched_loanbook <- readr::read_csv("file.path(input_path_matched, "matched_prio_all_groups.csv"), col_types = readr::cols())
-
 ## retrieve set of unique groups to loop over----
 unique_groups_tms <- unique(results_tms_total$group_id)
 unique_groups_sda <- unique(results_sda_total$group_id)
 
 ## function to generate individual ouputs----
 generate_individual_outputs <- function(data,
-                                        matched_loanbook,
+                                        matched_prioritized,
                                         output_directory,
                                         target_type = c("tms", "sda"),
                                         group_id,
@@ -189,7 +161,7 @@ generate_individual_outputs <- function(data,
   #validate input data
   validate_input_data_generate_individual_outputs(
     data = data,
-    matched_loanbook = matched_loanbook,
+    matched_prioritized = matched_prioritized,
     target_type = target_type
   )
 
@@ -208,7 +180,7 @@ generate_individual_outputs <- function(data,
           sector %in% .env$sector
         )
 
-      matched_loanbook <- matched_loanbook %>%
+      matched_prioritized <- matched_prioritized %>%
         dplyr::filter(
           group_id == .env$group_id,
           sector %in% .env$sector
@@ -352,7 +324,7 @@ generate_individual_outputs <- function(data,
           path = file.path(output_directory, group_id)
         )
       }
-      companies_included <- matched_loanbook %>%
+      companies_included <- matched_prioritized %>%
         dplyr::select(
           "group_id", "name_abcd", "sector_abcd", "loan_size_outstanding",
           "loan_size_outstanding_currency", "loan_size_credit_limit",
@@ -414,7 +386,7 @@ validate_input_args_generate_individual_outputs <- function(output_directory,
 }
 
 validate_input_data_generate_individual_outputs <- function(data,
-                                                            matched_loanbook,
+                                                            matched_prioritized,
                                                             target_type) {
   if (target_type == "sda") {
     validate_data_has_expected_cols(
@@ -436,7 +408,7 @@ validate_input_data_generate_individual_outputs <- function(data,
   }
 
   validate_data_has_expected_cols(
-    data = matched_loanbook,
+    data = matched_prioritized,
     expected_columns = c(
       "group_id", "name_abcd", "sector", "sector_abcd", "loan_size_outstanding",
       "loan_size_outstanding_currency", "loan_size_credit_limit",
@@ -465,7 +437,7 @@ for (tms_i in unique_groups_tms) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_tms_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "tms",
       group_id = tms_i,
@@ -493,7 +465,7 @@ for (tms_i in unique_groups_tms) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_tms_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "tms",
       group_id = tms_i,
@@ -521,7 +493,7 @@ for (tms_i in unique_groups_tms) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_tms_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "tms",
       group_id = tms_i,
@@ -549,7 +521,7 @@ for (tms_i in unique_groups_tms) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_tms_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "tms",
       group_id = tms_i,
@@ -578,7 +550,7 @@ for (sda_i in unique_groups_sda) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_sda_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "sda",
       group_id = sda_i,
@@ -606,7 +578,7 @@ for (sda_i in unique_groups_sda) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_sda_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "sda",
       group_id = sda_i,
@@ -634,7 +606,7 @@ for (sda_i in unique_groups_sda) {
   if (available_rows > 0) {
     generate_individual_outputs(
       data = results_sda_total,
-      matched_loanbook = matched_loanbook,
+      matched_prioritized = matched_prioritized,
       output_directory = output_path_standard,
       target_type = "sda",
       group_id = sda_i,
