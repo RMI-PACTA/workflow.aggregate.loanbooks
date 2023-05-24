@@ -17,7 +17,6 @@ dotenv::load_dot_env()
 if (file.exists(here::here(".env"))) {
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
-  input_path_raw <- Sys.getenv("DIR_RAW")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
 
   input_path_regions_geco_2022 <- file.path(input_path_scenario, Sys.getenv("FILENAME_REGIONS_GECO_2022"))
@@ -27,7 +26,6 @@ if (file.exists(here::here(".env"))) {
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
 
   output_path <- Sys.getenv("DIR_OUTPUT")
-  output_path_standard <- file.path(output_path, "standard")
   output_path_aggregated <- file.path(output_path, "aggregated")
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -72,32 +70,6 @@ abcd <- readr::read_csv(file.path(input_path_abcd))
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
-# loanbook <- loanbook_test_data
-loanbook <- purrr::map_dfr(list.files(input_path_raw, full.names = T), .f = vroom::vroom, id = "group_id")
-# aggregation functions expect a group_id to be able to distinguish banks/loan books in later analysis
-loanbook <- loanbook %>%
-  dplyr::mutate(group_id = gsub(pattern = paste0(input_path_raw, "/"), replacement = "", x = .data$group_id)) %>%
-  dplyr::mutate(group_id = gsub(pattern = ".csv", replacement = "", x = .data$group_id))
-
-# match and prioritize loan book----
-unique_loanbooks_raw <- unique(loanbook$group_id)
-
-matched_loanbook <- NULL
-
-for (i in unique_loanbooks_raw) {
-  loanbook_i <- loanbook %>%
-    dplyr::filter(.data$group_id == i)
-
-  matched_i <- match_name(loanbook_i, abcd) %>%
-    prioritize()
-
-  matched_loanbook <- matched_loanbook %>%
-    dplyr::bind_rows(matched_i)
-}
-
-# matched_loanbook %>%
-#   readr::write_csv(file.path(input_path_matched, "matched_prio_all_groups.csv"))
-
 # add loan book with corporate economy benchmark----
 # benchmark_region can be selected based on r2dii.data::region_isos
 matched_benchmark <- NULL
@@ -120,17 +92,20 @@ for (i in benchmark_regions) {
     dplyr::bind_rows(matched_benchmark_i)
 }
 
-# matched_benchmark %>%
-#   readr::write_csv(file.path(input_path_matched, "matched_prio_benchmark.csv"))
+matched_benchmark %>%
+  readr::write_csv(file.path(input_path_matched, "matched_prio_benchmark.csv"))
+
+# read matched and prioritized loan book----
+matched_prioritized <- readr::read_csv(
+  file.path(input_path_matched, "matched_prio_all_groups.csv")
+)
 
 # aggregate P4B alignment----
 
 ## retrieve set of unique groups to loop over----
-unique_loanbooks_matched <- unique(matched_loanbook$group_id)
+unique_loanbooks_matched <- unique(matched_prioritized$group_id)
 unique_groups_tms <- unique_loanbooks_matched
 unique_groups_sda <- unique_loanbooks_matched
-# unique_groups_tms <- unique(results_tms_total$group_id)
-# unique_groups_sda <- unique(results_sda_total$group_id)
 
 ## set specifications----
 
@@ -159,7 +134,7 @@ technology_direction <- scenario_input_tms %>%
   dplyr::select(-"green_or_brown")
 
 # add benchmark loan book for aggregation
-matched_total <- matched_loanbook %>%
+matched_total <- matched_prioritized %>%
   dplyr::bind_rows(matched_benchmark)
 
 ## prepare TMS company level P4B results for aggregation----
@@ -169,7 +144,7 @@ for (i in unique_groups_tms) {
   tryCatch(
     {
       tms_result_for_aggregation_i <- target_market_share(
-        data = matched_loanbook %>%
+        data = matched_prioritized %>%
           dplyr::filter(.data$group_id == i) %>%
           dplyr::select(-"group_id"),
         abcd = abcd,
@@ -287,7 +262,7 @@ for (i in unique_groups_sda) {
   tryCatch(
     {
       sda_result_for_aggregation_i <- target_sda(
-        data = matched_loanbook %>%
+        data = matched_prioritized %>%
           dplyr::filter(.data$group_id == i) %>%
           dplyr::select(-"group_id"),
         abcd = abcd,
@@ -411,7 +386,7 @@ loanbook_exposure_aggregated_alignment_bo_po %>%
 if (!is.null(company_aggregated_alignment_net_tms)) {
   data_sankey_tms <- prep_sankey(
     company_aggregated_alignment_net_tms,
-    matched_loanbook,
+    matched_prioritized,
     region = "global",
     year = 2027,
     middle_node = "sector"
@@ -423,7 +398,7 @@ if (!is.null(company_aggregated_alignment_net_tms)) {
 if (!is.null(company_aggregated_alignment_net_sda)) {
   data_sankey_sda <- prep_sankey(
     company_aggregated_alignment_net_sda,
-    matched_loanbook,
+    matched_prioritized,
     region = "global",
     year = 2027,
     middle_node = "sector"
@@ -439,7 +414,7 @@ plot_sankey(data_sankey, save_png_to = output_path_aggregated, png_name = "sanke
 if (!is.null(company_aggregated_alignment_net_tms)) {
   data_sankey_tms2 <- prep_sankey(
     company_aggregated_alignment_net_tms,
-    matched_loanbook,
+    matched_prioritized,
     region = "global",
     year = 2027,
     middle_node = "name_abcd",
@@ -452,7 +427,7 @@ if (!is.null(company_aggregated_alignment_net_tms)) {
 if (!is.null(company_aggregated_alignment_net_sda)) {
   data_sankey_sda2 <- prep_sankey(
     company_aggregated_alignment_net_sda,
-    matched_loanbook,
+    matched_prioritized,
     region = "global",
     year = 2027,
     middle_node = "name_abcd",
