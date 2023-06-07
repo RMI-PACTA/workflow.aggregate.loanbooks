@@ -578,7 +578,7 @@ if (
   )
 }
 
-## group level plots ----
+# group level plots ----
 ### timeline plot: evolution of portfolio-weighted alignment over time----
 
 region_timeline <- region_select
@@ -591,6 +591,10 @@ unique_loanbook_group_id <- loanbook_exposure_aggregated_alignment_bo_po %>%
   ) %>%
   dplyr::pull(.data$group_id) %>%
   unique()
+
+for (i in unique_loanbook_group_id) {
+  dir.create(file.path(output_path_aggregated, i), showWarnings = FALSE)
+}
 
 for (i in unique_loanbook_group_id) {
   data_timeline <- prep_timeline(
