@@ -2,7 +2,7 @@
 library(dotenv)
 library(tidyverse)
 
-## set up project----
+## set up project and params----
 dotenv::load_dot_env()
 
 if (file.exists(here::here(".env"))) {
@@ -15,6 +15,10 @@ if (file.exists(here::here(".env"))) {
   input_path_scenario_sda <- file.path(input_path_scenario, Sys.getenv("FILENAME_SCENARIO_SDA"))
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
 
+  scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
+  region_select <- Sys.getenv("PARAM_REGION_SELECT")
+  input_path_scenario_intermediate <- Sys.getenv("DIR_SCENARIO_INTERMEDIATE")
+
   output_path <- Sys.getenv("DIR_OUTPUT")
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -26,11 +30,7 @@ abcd <- readr::read_csv(file.path(input_path_abcd))
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
-## specify region and countries for analysis----
-scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-region_select <- Sys.getenv("PARAM_REGION_SELECT")
-input_path_scenario_intermediate <- Sys.getenv("DIR_SCENARIO_INTERMEDIATE")
-
+## get region and countries for analysis----
 regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
 regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
 
