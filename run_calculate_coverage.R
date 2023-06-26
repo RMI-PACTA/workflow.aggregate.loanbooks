@@ -28,7 +28,6 @@ abcd["production"][is.na(abcd["production"])] <- 0
 
 ## specify region and countries for analysis----
 scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
 region_select <- Sys.getenv("PARAM_REGION_SELECT")
 input_path_scenario_intermediate <- Sys.getenv("DIR_SCENARIO_INTERMEDIATE")
 
@@ -57,7 +56,6 @@ weo2022_reference <- weo_2022 %>%
   dplyr::mutate(scenario_geography = tolower(.data$scenario_geography)) %>%
   dplyr::filter(
     .data$year == 2021,
-    # .data$scenario_geography == .env$region_select,
     .data$scenario == "APS"
   ) %>%
   dplyr::summarise(
