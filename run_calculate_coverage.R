@@ -41,13 +41,10 @@ region_isos_complete <- r2dii.data::region_isos %>%
 
 region_isos_select <- region_isos_complete %>%
   dplyr::filter(
-    .data$source == .env$scenario_source_input,
-    .data$region %in% .env$region_select
+    .data$source == .env$scenario_source_input
   )
 
-countries_select <- region_isos_select %>%
-  dplyr::pull(.data$isos) %>%
-  toupper()
+available_regions <- unique(region_isos_select$region)
 
 load(file.path(input_path_scenario_intermediate, "weo_2022.rda"))
 
@@ -56,11 +53,11 @@ load(file.path(input_path_scenario_intermediate, "geco_2022.rda"))
 
 ## prepare scenario benchmarks for coverage analysis----
 ### prepare benchmark: IEA WEO 2022----
-weo2022_region_select <- weo_2022 %>%
+weo2022_reference <- weo_2022 %>%
   dplyr::mutate(scenario_geography = tolower(.data$scenario_geography)) %>%
   dplyr::filter(
     .data$year == 2021,
-    .data$scenario_geography == .env$region_select,
+    # .data$scenario_geography == .env$region_select,
     .data$scenario == "APS"
   ) %>%
   dplyr::summarise(
@@ -164,15 +161,14 @@ cement <- cement %>%
   )
 
 # combine IEA data
-weo2022_reference <- weo2022_region_select %>%
+weo2022_reference <- weo2022_reference %>%
   dplyr::bind_rows(steel) %>%
   dplyr::bind_rows(cement)
 
 ### prepare benchmark: JRC geco 2022----
-geco2022_region_select <- geco_2022 %>%
+geco2022_reference <- geco_2022 %>%
   dplyr::filter(
     .data$year == 2022,
-    .data$scenario_geography %in% c("Global", "European Union"),
     .data$scenario == "Reference"
   ) %>%
   dplyr::summarise(
@@ -180,8 +176,9 @@ geco2022_region_select <- geco_2022 %>%
     .by = c("source", "scenario", "scenario_geography", "sector", "technology", "indicator", "units", "year")
   )
 
-geco2022_reference <- geco2022_region_select %>%
-  dplyr::filter(.data$sector %in% c("Power", "Automotive", "Oil&Gas", "Coal"))
+geco2022_reference <- geco2022_reference %>%
+  dplyr::filter(.data$sector %in% c("Power", "Automotive", "Oil&Gas", "Coal")) %>%
+  dplyr::mutate(scenario_geography = tolower(.data$scenario_geography))
 
 ## combine benchmark scenarios----
 scenario_reference_adjusted <- geco2022_reference %>%
@@ -229,28 +226,52 @@ scenario_reference_final <- scenario_reference_adjusted %>%
   dplyr::select(-c("unit_abcd", "value_in_unit_abcd", "production", "indicator"))
 
 ## prepare production data for coverage analysis----
-abcd_global_coverage <- abcd %>%
-  dplyr::filter(
-    plant_location %in% .env$countries_select,
-    is_ultimate_owner,
-    .data$year %in% c(2021, 2022)
-  ) %>%
-  dplyr::mutate(
-    technology = dplyr::if_else(
-      .data$sector %in% c("cement", "steel"),
-      NA_character_,
-      .data$technology
-    )
-  ) %>%
-  dplyr::summarise(
-    production = sum(.data$production, na.rm = TRUE),
-    .by = c("sector", "technology", "year", "production_unit")
-  )
+production_data_coverage <- NULL
 
-## coverage by sector, technology and reference benchmark
-production_data_coverage <- scenario_reference_final %>%
-  dplyr::inner_join(
-    abcd_global_coverage,
-    by = c("sector", "technology", "year", "units" = "production_unit")
-  ) %>%
-  dplyr::mutate(share_coverage = round(.data$production / .data$production_scenario, 3))
+for (region_i in available_regions) {
+  # get countries for given region
+  countries_select <- region_isos_select %>%
+    dplyr::filter(.data$region == .env$region_i) %>%
+    dplyr::pull(.data$isos) %>%
+    toupper()
+
+  # calculate total ABCD production for given region
+  abcd_production_total_region_i <- abcd %>%
+    dplyr::filter(
+      plant_location %in% .env$countries_select,
+      is_ultimate_owner,
+      .data$year %in% c(2021, 2022)
+    ) %>%
+    dplyr::mutate(
+      technology = dplyr::if_else(
+        .data$sector %in% c("cement", "steel"),
+        NA_character_,
+        .data$technology
+      )
+    ) %>%
+    dplyr::summarise(
+      production = sum(.data$production, na.rm = TRUE),
+      .by = c("sector", "technology", "year", "production_unit")
+    ) %>%
+    dplyr::mutate(region = .env$region_i)
+
+  ## join regional total production and the corresponding scenario values
+  production_data_coverage_i <- scenario_reference_final %>%
+    dplyr::inner_join(
+      # TODO: ideally also join on scenario source
+      abcd_production_total_region_i,
+      by = c("scenario_geography" = "region", "sector", "technology", "year", "units" = "production_unit")
+    )
+
+  ## calculate coverage by region, sector, technology and reference benchmark
+  production_data_coverage_i <- production_data_coverage_i %>%
+    dplyr::mutate(share_coverage = round(.data$production / .data$production_scenario, 3))
+
+  production_data_coverage <- production_data_coverage %>%
+    dplyr::bind_rows(production_data_coverage_i)
+
+}
+
+production_data_coverage %>%
+  readr::write_csv(file.path(input_dir_abcd, "coverage_abcd_scneario_benchmark.csv"))
+
