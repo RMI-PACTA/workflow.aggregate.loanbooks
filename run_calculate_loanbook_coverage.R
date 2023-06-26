@@ -52,8 +52,6 @@ matched_companies <- matched_prioritized %>%
   distinct(name_abcd, sector_abcd, loan_size_outstanding, loan_size_outstanding_currency, score)
 
 scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
-region_select <- Sys.getenv("PARAM_REGION_SELECT")
 
 regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
 regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
