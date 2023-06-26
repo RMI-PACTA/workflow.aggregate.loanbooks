@@ -9,7 +9,7 @@ library(vroom)
 
 dotenv::load_dot_env()
 
-# set up project paths----
+# set up project paths and params----
 if (file.exists(here::here(".env"))) {
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
@@ -19,6 +19,9 @@ if (file.exists(here::here(".env"))) {
   input_path_regions_weo_2022 <- file.path(input_path_scenario, Sys.getenv("FILENAME_REGIONS_WEO_2022"))
 
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
+
+  scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
+  start_year_select <- Sys.getenv("PARAM_START_YEAR")
 
   output_path <- Sys.getenv("DIR_OUTPUT")
 } else {
@@ -32,8 +35,6 @@ if (file.exists(here::here(".env"))) {
 abcd <- readr::read_csv(file.path(input_path_abcd))
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
-
-start_year_select <- Sys.getenv("PARAM_START_YEAR")
 
 abcd <- abcd %>%
   dplyr::filter(.data$year == .env$start_year_select)
@@ -50,8 +51,6 @@ matched_prioritized <- readr::read_csv(
 
 matched_companies <- matched_prioritized %>%
   distinct(name_abcd, sector_abcd, loan_size_outstanding, loan_size_outstanding_currency, score)
-
-scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
 
 regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
 regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
