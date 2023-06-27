@@ -68,7 +68,7 @@ abcd <- readr::read_csv(file.path(input_path_abcd))
 abcd["production"][is.na(abcd["production"])] <- 0
 
 # loanbook <- loanbook_test_data
-loanbook <- purrr::map_dfr(list.files(input_path_raw, full.names = T), .f = vroom::vroom, id = "group_id")
+loanbook <- purrr::map_dfr(list.files(input_path_raw, full.names = T, pattern = "*.csv"), .f = vroom::vroom, id = "group_id")
 # aggregation functions expect a group_id to be able to distinguish banks/loan books in later analysis
 loanbook <- loanbook %>%
   dplyr::mutate(group_id = gsub(pattern = paste0(input_path_raw, "/"), replacement = "", x = .data$group_id)) %>%
