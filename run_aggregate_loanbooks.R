@@ -77,16 +77,13 @@ matched_benchmark <- NULL
 # matching the benchmark loan book separately, because it is not needed for the
 # generation of standard PACTA output
 for (i in benchmark_regions) {
-  loanbook_corporate_benchmark_i <- abcd %>%
+  matched_benchmark_i <- abcd %>%
     create_benchmark_loanbook(
       scenario_source = scenario_source_input,
       start_year = start_year,
       region_isos = region_isos_complete,
       benchmark_region = i
     )
-
-  matched_benchmark_i <- match_name(loanbook_corporate_benchmark_i, abcd) %>%
-    prioritize()
 
   matched_benchmark <- matched_benchmark %>%
     dplyr::bind_rows(matched_benchmark_i)
