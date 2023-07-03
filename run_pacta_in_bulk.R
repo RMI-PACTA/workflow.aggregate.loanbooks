@@ -43,8 +43,22 @@ region_select <- Sys.getenv("PARAM_REGION_SELECT")
 ############# TEMP #############
 # r2dii.data is not updated yet, so we manually update the region_isos data to
 # cover the 2022 scenarios
-regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
-regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
+regions_geco_2022 <- readr::read_csv(
+  input_path_regions_geco_2022,
+  col_types = cols_only(
+    region = "c",
+    isos = "c",
+    source = "c"
+  )
+)
+regions_weo_2022 <- readr::read_csv(
+  input_path_regions_weo_2022,
+  col_types = cols_only(
+    region = "c",
+    isos = "c",
+    source = "c"
+  )
+)
 
 region_isos_complete <- r2dii.data::region_isos %>%
   rbind(regions_geco_2022) %>%
@@ -59,17 +73,88 @@ region_isos_select <- region_isos_complete %>%
   )
 
 # load input data----
-scenario_input_tms <- read.csv(input_path_scenario_tms)
-scenario_input_sda <- read.csv(input_path_scenario_sda)
+scenario_input_tms <- readr::read_csv(
+  input_path_scenario_tms,
+  col_types = cols_only(
+    scenario_source = "c",
+    region = "c",
+    scenario = "c",
+    sector = "c",
+    technology = "c",
+    year = "i",
+    smsp = "n",
+    tmsr = "n"
+  )
+)
+scenario_input_sda <- readr::read_csv(
+  input_path_scenario_sda,
+  col_types = cols_only(
+    scenario_source = "c",
+    region = "c",
+    scenario = "c",
+    sector = "c",
+    year = "i",
+    emission_factor = "n",
+    emission_factor_unit = "c"
+  )
+)
 
 # abcd <- abcd_test_data
-abcd <- readr::read_csv(file.path(input_path_abcd))
+abcd <- readr::read_csv(
+  file.path(input_path_abcd),
+  col_types = cols_only(
+    company_id = "i",
+    name_company = "c",
+    lei = "c",
+    is_ultimate_owner = "l",
+    sector = "c",
+    technology = "c",
+    plant_location = "c",
+    year = "i",
+    production = "n",
+    production_unit = "c",
+    emission_factor = "n",
+    emission_factor_unit = "c",
+    ald_timestamp = "c"
+  )
+)
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
 # read matched and prioritized loan book----
 matched_prioritized <- readr::read_csv(
-  file.path(input_path_matched, "matched_prio_all_groups.csv")
+  file.path(input_path_matched, "matched_prio_all_groups.csv"),
+  col_types = cols(
+    group_id = "c",
+    id_loan = "c",
+    id_direct_loantaker = "c",
+    name_direct_loantaker = "c",
+    id_intermediate_parent_1 = "c",
+    name_intermediate_parent_1 = "c",
+    id_ultimate_parent = "c",
+    name_ultimate_parent = "c",
+    loan_size_outstanding = "n",
+    loan_size_outstanding_currency = "c",
+    loan_size_credit_limit = "n",
+    loan_size_credit_limit_currency = "c",
+    sector_classification_system = "c",
+    sector_classification_input_type = "c",
+    sector_classification_direct_loantaker = "n",
+    fi_type = "c",
+    flag_project_finance_loan = "c",
+    name_project = "c",
+    lei_direct_loantaker = "c",
+    isin_direct_loantaker = "c",
+    id_2dii = "c",
+    level = "c",
+    sector = "c",
+    sector_abcd = "c",
+    name = "c",
+    name_abcd = "c",
+    score = "n",
+    source = "c",
+    borderline = "l"
+  )
 )
 
 # generate all P4B outputs----
