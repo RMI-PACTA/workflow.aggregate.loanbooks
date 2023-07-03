@@ -139,7 +139,7 @@ for (i in benchmark_regions) {
       benchmark_region = i
     )
 
-  matched_benchmark_i <- match_name(loanbook_corporate_benchmark_i, abcd) %>%
+  matched_benchmark_i <- loanbook_corporate_benchmark_i %>%
     prioritize()
 
   matched_benchmark <- matched_benchmark %>%
