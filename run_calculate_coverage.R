@@ -4,6 +4,7 @@ library(tidyverse)
 
 ## set up project and params----
 dotenv::load_dot_env()
+source("expected_columns.R")
 
 if (file.exists(here::here(".env"))) {
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
@@ -26,13 +27,25 @@ if (file.exists(here::here(".env"))) {
 }
 
 # read abcd
-abcd <- readr::read_csv(file.path(input_path_abcd))
+abcd <- readr::read_csv(
+  file.path(input_path_abcd),
+  col_types = col_types_abcd,
+  col_select = dplyr::all_of(col_select_abcd)
+)
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
 ## get region and countries for analysis----
-regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
-regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
+regions_geco_2022 <- readr::read_csv(
+  input_path_regions_geco_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
+regions_weo_2022 <- readr::read_csv(
+  input_path_regions_weo_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
 
 region_isos_complete <- r2dii.data::region_isos %>%
   rbind(regions_geco_2022) %>%

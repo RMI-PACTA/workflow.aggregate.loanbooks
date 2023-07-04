@@ -12,6 +12,7 @@ library(tidyr)
 library(vroom)
 
 dotenv::load_dot_env()
+source("expected_columns.R")
 
 # set up project paths----
 if (file.exists(here::here(".env"))) {
@@ -43,8 +44,16 @@ region_select <- Sys.getenv("PARAM_REGION_SELECT")
 ############# TEMP #############
 # r2dii.data is not updated yet, so we manually update the region_isos data to
 # cover the 2022 scenarios
-regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
-regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
+regions_geco_2022 <- readr::read_csv(
+  input_path_regions_geco_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
+regions_weo_2022 <- readr::read_csv(
+  input_path_regions_weo_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
 
 region_isos_complete <- r2dii.data::region_isos %>%
   rbind(regions_geco_2022) %>%
@@ -59,22 +68,38 @@ region_isos_select <- region_isos_complete %>%
   )
 
 # load input data----
-scenario_input_tms <- read.csv(input_path_scenario_tms)
-scenario_input_sda <- read.csv(input_path_scenario_sda)
+scenario_input_tms <- readr::read_csv(
+  input_path_scenario_tms,
+  col_types = col_types_scenario_tms,
+  col_select = dplyr::all_of(col_select_scenario_tms)
+)
+scenario_input_sda <- readr::read_csv(
+  input_path_scenario_sda,
+  col_types = col_types_scenario_sda,
+  col_select = dplyr::all_of(col_select_scenario_sda)
+)
 
 # abcd <- abcd_test_data
-abcd <- readr::read_csv(file.path(input_path_abcd))
+abcd <- readr::read_csv(
+  file.path(input_path_abcd),
+  col_types = col_types_abcd,
+  col_select = dplyr::all_of(col_select_abcd)
+)
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
 # loanbook <- loanbook_test_data
-loanbook <- purrr::map_dfr(list.files(input_path_raw, full.names = T, pattern = "*.csv"), .f = vroom::vroom, id = "group_id")
+loanbook <- purrr::map_dfr(
+  list.files(input_path_raw, full.names = T, pattern = "*.csv"),
+  .f = vroom::vroom,
+  id = "group_id"
+)
 # aggregation functions expect a group_id to be able to distinguish banks/loan books in later analysis
 loanbook <- loanbook %>%
   dplyr::mutate(group_id = gsub(pattern = paste0(input_path_raw, "/"), replacement = "", x = .data$group_id)) %>%
   dplyr::mutate(group_id = gsub(pattern = ".csv", replacement = "", x = .data$group_id))
 
-# match and loan book----
+# match loan book----
 unique_loanbooks_raw <- unique(loanbook$group_id)
 
 matched_loanbook <- NULL
@@ -83,8 +108,7 @@ for (i in unique_loanbooks_raw) {
   loanbook_i <- loanbook %>%
     dplyr::filter(.data$group_id == i)
 
-  matched_i <- match_name(loanbook_i, abcd) %>%
-    prioritize()
+  matched_i <- match_name(loanbook_i, abcd)
 
   matched_loanbook <- matched_loanbook %>%
     dplyr::bind_rows(matched_i)
@@ -97,8 +121,11 @@ matched_loanbook %>%
 
 # prioritize checked matched loan book----
 matched_loanbook_checked <- readr::read_csv(
-  file.path(input_path_matched, "matched_all_groups.csv")
+  file.path(input_path_matched, "matched_all_groups.csv"),
+  col_types = col_types_matched_all_groups,
+  col_select = dplyr::all_of(col_select_matched_all_groups)
 )
+
 
 unique_matched_loanbook_checked <- unique(matched_loanbook_checked$group_id)
 

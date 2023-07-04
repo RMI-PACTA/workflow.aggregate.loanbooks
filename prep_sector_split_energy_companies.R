@@ -57,9 +57,8 @@ advanced_company_indicators_raw <- readxl::read_xlsx(
 
 company_ids_included <- readr::read_csv(
   input_path_split,
-  col_types = readr::cols_only(
-    company_id = "d"
-  )
+  col_types = readr::cols_only(company_id = "d"),
+  col_select = "company_id"
 ) %>%
   dplyr::pull(.data$company_id)
 

@@ -8,6 +8,7 @@ library(tidyr)
 library(vroom)
 
 dotenv::load_dot_env()
+source("expected_columns.R")
 
 # set up project paths and params----
 if (file.exists(here::here(".env"))) {
@@ -32,7 +33,11 @@ if (file.exists(here::here(".env"))) {
 
 # description production data ----
 # read abcd
-abcd <- readr::read_csv(file.path(input_path_abcd))
+abcd <- readr::read_csv(
+  file.path(input_path_abcd),
+  col_types = col_types_abcd,
+  col_select = dplyr::all_of(col_select_abcd)
+)
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
 
@@ -43,7 +48,9 @@ abcd <- abcd %>%
 # coverage of production by companies in loan books compared to total production----
 
 matched_prioritized <- readr::read_csv(
-  file.path(input_path_matched, "matched_prio_all_groups.csv")
+  file.path(input_path_matched, "matched_prio_all_groups.csv"),
+  col_types = col_types_matched_prio_all_groups,
+  col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
 
 
@@ -52,9 +59,16 @@ matched_prioritized <- readr::read_csv(
 matched_companies <- matched_prioritized %>%
   distinct(name_abcd, sector_abcd, loan_size_outstanding, loan_size_outstanding_currency, score)
 
-regions_geco_2022 <- readr::read_csv(input_path_regions_geco_2022)
-regions_weo_2022 <- readr::read_csv(input_path_regions_weo_2022)
-
+regions_geco_2022 <- readr::read_csv(
+  input_path_regions_geco_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
+regions_weo_2022 <- readr::read_csv(
+  input_path_regions_weo_2022,
+  col_types = col_types_region_isos,
+  col_select = dplyr::all_of(col_select_region_isos)
+)
 # get required countries for region_select----
 region_isos_complete <- r2dii.data::region_isos %>%
   rbind(regions_geco_2022) %>%
