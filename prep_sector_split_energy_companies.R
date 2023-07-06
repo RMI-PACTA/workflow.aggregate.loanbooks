@@ -73,9 +73,7 @@ unit_conversion <- unit_conversion
 advanced_company_indicators <- advanced_company_indicators_raw %>%
   janitor::clean_names() %>%
   dplyr::filter(
-    .data$asset_sector %in% c("Coal", "Oil&Gas", "Power"),
-    .data$activity_unit != "MW",
-    .data$company_id %in% company_ids_included
+    (.data$asset_sector == "Power" & .data$activity_unit != "MW") | .data$asset_sector != "Power"
   ) %>%
   dplyr::select(-c(starts_with("direct_ownership_"), starts_with("financial_control_"))) %>%
   dplyr::rename_with(.fn = ~ gsub("asset_", "", .x)) %>%
@@ -89,20 +87,19 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
   dplyr::mutate(year = as.numeric(.data$year)) %>%
   dplyr::filter(.data$year == .env$start_year) %>%
   dplyr::mutate(
-    sector = dplyr::case_when(
-      .data$sector == "Coal" ~ "coal",
-      .data$sector == "Oil&Gas" ~ "oil and gas",
-      .data$sector == "Power" ~ "power",
-      TRUE ~ .data$sector
+    sector = tolower(.data$sector),
+    sector = dplyr::if_else(
+      .data$sector == "oil&gas", "oil and gas", .data$sector
     ),
     technology = dplyr::case_when(
       .data$sector == "coal" ~ "coal",
       .data$sector == "oil and gas" & grepl("Gas", .data$technology) ~ "gas",
       .data$sector == "oil and gas" & grepl("Oil", .data$technology) ~ "oil",
       .data$sector == "power" ~ tolower(.data$technology),
-      TRUE ~ .data$technology
+      TRUE ~ tolower(.data$technology)
     )
   ) %>%
+  dplyr::filter(!.data$sector %in% c("hdv", "shipping")) %>%
   dplyr::summarise(
     value = sum(.data$value, na.rm = TRUE),
     .by = c("company_id", "company_name", "sector", "technology", "activity_unit", "year")
@@ -114,20 +111,58 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
   )
 
 # identify compenies active in more than one energy sector
-multi_sector_companies <- advanced_company_indicators %>%
-  dplyr::filter(
-    .data$sector %in% c("coal", "oil and gas", "power")
+multi_sector_companies_prep <- advanced_company_indicators %>%
+  dplyr::mutate(
+    energy_sector = dplyr::if_else(
+      .data$sector %in% c("coal", "oil and gas", "power"),
+      TRUE,
+      FALSE
+    )
   ) %>%
-  dplyr::distinct(.data$company_id, .data$sector) %>%
-  dplyr::summarise(n = dplyr::n(), .by = "company_id") %>%
-  dplyr::filter(n > 1) %>%
+  dplyr::distinct(.data$company_id, .data$sector, .data$energy_sector) %>%
+  dplyr::mutate(
+    n_sectors = dplyr::n(),
+    .by = "company_id"
+  ) %>%
+  dplyr::summarise(
+    n_energy_sectors = sum(.data$energy_sector, na.rm = TRUE),
+    .by = c("company_id", "n_sectors")
+  )
+
+multi_sector_companies_all <- multi_sector_companies_prep %>%
+  dplyr::filter(.data$n_sectors > 1)
+
+multi_sector_companies_energy <- multi_sector_companies_prep %>%
+  dplyr::filter(.data$n_energy_sectors > 1) %>%
   dplyr::pull(.data$company_id)
 
 # TODO: should the split always be based on the entire company production or
 # should it be scoped to the scenario region?
+
+# keep only companies with activity in multiple sectors and split by number of
+# sectors equally
+sector_split_all_companies <- advanced_company_indicators %>%
+  dplyr::filter(
+    .data$year == .env$start_year
+  ) %>%
+  dplyr::inner_join(
+    multi_sector_companies_all,
+    by = "company_id"
+  ) %>%
+  dplyr::mutate(
+    sector_split = 1 / .data$n_sectors
+  ) %>%
+  dplyr::summarise(
+    production = sum(.data$production, na.rm = TRUE),
+    n_sectors = max(.data$n_sectors, na.rm = TRUE),
+    n_energy_sectors = max(.data$n_energy_sectors, na.rm = TRUE),
+    sector_split = max(.data$sector_split, na.rm = TRUE),
+    .by = c("company_id", "name_company", "sector", "year", "production_unit")
+  )
+
 sector_split_energy_companies <- advanced_company_indicators %>%
   dplyr::filter(
-    .data$company_id %in% .env$multi_sector_companies,
+    .data$company_id %in% .env$multi_sector_companies_energy,
     .data$sector %in% c("coal", "oil and gas", "power"),
     .data$year == .env$start_year
   )
@@ -168,6 +203,36 @@ sector_split_energy_companies <- sector_split_energy_companies %>%
   dplyr::select(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")) %>%
   dplyr::distinct()
 
+# combine the sector splits
+sector_split_all_companies_final <- sector_split_all_companies %>%
+  dplyr::left_join(
+    sector_split_energy_companies,
+    by = c("company_id", "name_company", "sector"),
+    suffix = c("_all", "_energy")
+  ) %>%
+  dplyr::mutate(
+    sector_split_energy_scaled = (.data$n_energy_sectors / .data$n_sectors) * .data$sector_split_energy,
+    sector_split = dplyr::if_else(
+      is.na(.data$sector_split_energy),
+      .data$sector_split_all,
+      .data$sector_split_energy_scaled
+    )
+  ) %>%
+  dplyr::rename(
+    production = "production_all",
+    production_unit = "production_unit_all"
+  )
+
 ## write output----
 sector_split_energy_companies %>%
+  dplyr::filter(.data$company_id %in% company_ids_included) %>%
+  readr::write_csv(file.path(input_path_matched, "companies_sector_split_energy_only.csv"))
+
+sector_split_all_companies_final %>%
+  dplyr::filter(.data$company_id %in% company_ids_included) %>%
+  dplyr::select(
+    all_of(
+      c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")
+    )
+  ) %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split.csv"))
