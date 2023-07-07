@@ -10,8 +10,9 @@ library(vroom)
 dotenv::load_dot_env()
 source("expected_columns.R")
 
-# set up project paths and params----
+# set up project----
 if (file.exists(here::here(".env"))) {
+  # paths
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
@@ -21,10 +22,14 @@ if (file.exists(here::here(".env"))) {
 
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
 
+  output_path <- Sys.getenv("DIR_OUTPUT")
+
+  # project parameters
   scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
   start_year_select <- Sys.getenv("PARAM_START_YEAR")
+  apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
+  if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
 
-  output_path <- Sys.getenv("DIR_OUTPUT")
 } else {
   stop("Please set up a configuration file at the root of the repository, as
        explained in the README.md")
