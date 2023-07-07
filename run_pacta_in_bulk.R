@@ -100,7 +100,7 @@ matched_prioritized <- readr::read_csv(
   col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
 
-# optional: apply sector split
+# optional: apply sector split----
 if (apply_sector_split) {
   companies_sector_split <- readr::read_csv(
     file.path(input_path_matched, "companies_sector_split.csv"),
