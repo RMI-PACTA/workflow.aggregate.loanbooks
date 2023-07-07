@@ -53,6 +53,41 @@ matched_prioritized <- readr::read_csv(
   col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
 
+# optional: apply sector split----
+if (apply_sector_split) {
+  companies_sector_split <- readr::read_csv(
+    file.path(input_path_matched, "companies_sector_split.csv"),
+    col_types = cols_only(
+      company_id = "i",
+      name_company = "c",
+      sector = "c",
+      sector_split = "n"
+    ),
+    col_select = dplyr::all_of(c("name_company", "sector", "sector_split"))
+  )
+
+  matched_prioritized <- matched_prioritized %>%
+    dplyr::left_join(
+      companies_sector_split,
+      by = c("name_abcd" = "name_company", "sector_abcd" = "sector")
+    ) %>%
+    dplyr::mutate(
+      # renaming the loan_id is not conditional to avoid any chance of accidentally
+      # renaming a split loan to a loan_id that already exists elsewhere
+      id_loan = paste(.data$id_loan, .data$sector_abcd, sep = "_"),
+      loan_size_outstanding = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_outstanding,
+        .data$loan_size_outstanding * .data$sector_split
+      ),
+      loan_size_credit_limit = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_credit_limit,
+        .data$loan_size_credit_limit * .data$sector_split
+      )
+    ) %>%
+    dplyr::select(-"sector_split")
+}
 
 # create summary of loan book coverage----
 
