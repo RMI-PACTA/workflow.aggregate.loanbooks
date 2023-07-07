@@ -62,13 +62,8 @@ matched_prioritized <- readr::read_csv(
 if (apply_sector_split) {
   companies_sector_split <- readr::read_csv(
     file.path(input_path_matched, "companies_sector_split.csv"),
-    col_types = cols_only(
-      company_id = "i",
-      name_company = "c",
-      sector = "c",
-      sector_split = "n"
-    ),
-    col_select = dplyr::all_of(c("name_company", "sector", "sector_split"))
+    col_types = col_types_companies_sector_split,
+    col_select = col_select_companies_sector_split
   )
 
   matched_prioritized <- matched_prioritized %>%
