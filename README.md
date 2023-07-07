@@ -134,6 +134,7 @@ for the configuration of the analysis:
 
 ``` bash
 # parameters for company sector split
+APPLY_SECTOR_SPLIT=FALSE
 DIR_SPLIT_COMPANY_ID="PATH/TO/SPLIT/FOLDER"
 FILENAME_SPLIT_COMPANY_ID="split_company_ids.csv"
 DIR_ADVANCED_COMPANY_INDICATORS="PATH/TO/ADVANCED_COMP_INDICATORS/FOLDER"
@@ -146,7 +147,7 @@ file `companies_sector_split.csv` into the matched directory as set up
 in `.env`.
 
 ### Usage of the sector split
-
+REWORK SECTION to allow applying a set of different rules.
 When companies operate in multiple sectors within the PACTA scope the following rules can be used to split the loan value between the different sectors:
 
 **Rule 1:**
