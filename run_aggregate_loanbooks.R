@@ -14,8 +14,9 @@ library(vroom)
 dotenv::load_dot_env()
 source("expected_columns.R")
 
-# set up project paths----
+# set up project----
 if (file.exists(here::here(".env"))) {
+  # paths
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
@@ -28,18 +29,21 @@ if (file.exists(here::here(".env"))) {
 
   output_path <- Sys.getenv("DIR_OUTPUT")
   output_path_aggregated <- file.path(output_path, "aggregated")
+
+  # project parameters
+  scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
+  scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
+  region_select <- Sys.getenv("PARAM_REGION_SELECT")
+  start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+  time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
+  benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
+  apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
+  if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+
 } else {
   stop("Please set up a configuration file at the root of the repository, as
        explained in the README.md")
 }
-
-# set project parameters----
-scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
-region_select <- Sys.getenv("PARAM_REGION_SELECT")
-start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
-time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
-benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
 
 # TODO: add check if all files exist, resort to test files if not
 
@@ -119,6 +123,42 @@ matched_prioritized <- readr::read_csv(
   col_types = col_types_matched_prio_all_groups,
   col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
+
+# optional: apply sector split----
+if (apply_sector_split) {
+  companies_sector_split <- readr::read_csv(
+    file.path(input_path_matched, "companies_sector_split.csv"),
+    col_types = cols_only(
+      company_id = "i",
+      name_company = "c",
+      sector = "c",
+      sector_split = "n"
+    ),
+    col_select = dplyr::all_of(c("name_company", "sector", "sector_split"))
+  )
+
+  matched_prioritized <- matched_prioritized %>%
+    dplyr::left_join(
+      companies_sector_split,
+      by = c("name_abcd" = "name_company", "sector_abcd" = "sector")
+    ) %>%
+    dplyr::mutate(
+      # renaming the loan_id is not conditional to avoid any chance of accidentally
+      # renaming a split loan to a loan_id that already exists elsewhere
+      id_loan = paste(.data$id_loan, .data$sector_abcd, sep = "_"),
+      loan_size_outstanding = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_outstanding,
+        .data$loan_size_outstanding * .data$sector_split
+      ),
+      loan_size_credit_limit = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_credit_limit,
+        .data$loan_size_credit_limit * .data$sector_split
+      )
+    ) %>%
+    dplyr::select(-"sector_split")
+}
 
 # aggregate P4B alignment----
 
