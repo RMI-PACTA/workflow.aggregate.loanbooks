@@ -110,7 +110,7 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
     production_unit = "activity_unit"
   )
 
-# identify compenies active in more than one energy sector
+### count number of sectors and energy sectors per company----
 multi_sector_companies_prep <- advanced_company_indicators %>%
   dplyr::mutate(
     energy_sector = dplyr::if_else(
@@ -129,9 +129,11 @@ multi_sector_companies_prep <- advanced_company_indicators %>%
     .by = c("company_id", "n_sectors")
   )
 
+### identify compenies active in more than one sector----
 multi_sector_companies_all <- multi_sector_companies_prep %>%
   dplyr::filter(.data$n_sectors > 1)
 
+### identify compenies active in more than one energy sector----
 multi_sector_companies_energy <- multi_sector_companies_prep %>%
   dplyr::filter(.data$n_energy_sectors > 1) %>%
   dplyr::pull(.data$company_id)
@@ -139,6 +141,8 @@ multi_sector_companies_energy <- multi_sector_companies_prep %>%
 # TODO: should the split always be based on the entire company production or
 # should it be scoped to the scenario region?
 
+
+## calcualte equal weights sector split for all sectors----
 # keep only companies with activity in multiple sectors and split by number of
 # sectors equally
 sector_split_all_companies <- advanced_company_indicators %>%
@@ -160,6 +164,7 @@ sector_split_all_companies <- advanced_company_indicators %>%
     .by = c("company_id", "name_company", "sector", "year", "production_unit")
   )
 
+## calcualte primary energy-based sector split for energy sectors----
 sector_split_energy_companies <- advanced_company_indicators %>%
   dplyr::filter(
     .data$company_id %in% .env$multi_sector_companies_energy,
@@ -203,7 +208,8 @@ sector_split_energy_companies <- sector_split_energy_companies %>%
   dplyr::select(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")) %>%
   dplyr::distinct()
 
-# combine the sector splits
+## combine the sector splits----
+# ... to use equal weights for non energy sectors and scaled primary energy bsaed splits for energy sectors
 sector_split_all_companies_final <- sector_split_all_companies %>%
   dplyr::left_join(
     sector_split_energy_companies,
@@ -227,6 +233,15 @@ sector_split_all_companies_final <- sector_split_all_companies %>%
 sector_split_energy_companies %>%
   dplyr::filter(.data$company_id %in% company_ids_included) %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split_energy_only.csv"))
+
+sector_split_all_companies %>%
+  dplyr::filter(.data$company_id %in% company_ids_included) %>%
+  dplyr::select(
+    all_of(
+      c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")
+    )
+  ) %>%
+  readr::write_csv(file.path(input_path_matched, "companies_sector_split_equal_weights_only.csv"))
 
 sector_split_all_companies_final %>%
   dplyr::filter(.data$company_id %in% company_ids_included) %>%
