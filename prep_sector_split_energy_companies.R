@@ -205,7 +205,9 @@ sector_split_energy_companies <- sector_split_energy_companies %>%
     sector_split = .data$production / sum(.data$production, na.rm = TRUE),
     .by = c("company_id", "name_company", "year", "production_unit")
   ) %>%
-  dplyr::select(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")) %>%
+  dplyr::select(
+    dplyr::all_of(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split"))
+  ) %>%
   dplyr::distinct()
 
 ## combine the sector splits----
@@ -232,13 +234,18 @@ sector_split_all_companies_final <- sector_split_all_companies %>%
 ## write output----
 sector_split_energy_companies %>%
   dplyr::filter(.data$company_id %in% company_ids_included) %>%
+  dplyr::select(
+    all_of(
+      c("company_id", "name_company", "sector", "sector_split")
+    )
+  ) %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split_energy_only.csv"))
 
 sector_split_all_companies %>%
   dplyr::filter(.data$company_id %in% company_ids_included) %>%
   dplyr::select(
     all_of(
-      c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")
+      c("company_id", "name_company", "sector", "sector_split")
     )
   ) %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split_equal_weights_only.csv"))
@@ -247,7 +254,7 @@ sector_split_all_companies_final %>%
   dplyr::filter(.data$company_id %in% company_ids_included) %>%
   dplyr::select(
     all_of(
-      c("company_id", "name_company", "sector", "production_unit", "production", "sector_split")
+      c("company_id", "name_company", "sector", "sector_split")
     )
   ) %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split.csv"))
