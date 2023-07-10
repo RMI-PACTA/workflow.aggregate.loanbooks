@@ -63,13 +63,21 @@ if (apply_sector_split) {
   companies_sector_split <- readr::read_csv(
     file.path(input_path_matched, "companies_sector_split.csv"),
     col_types = col_types_companies_sector_split,
-    col_select = col_select_companies_sector_split
+    col_select = dplyr::all_of(col_select_companies_sector_split)
   )
 
+  abcd_id <- abcd %>%
+    dplyr::distinct(.data$company_id, .data$name_company)
+
   matched_prioritized <- matched_prioritized %>%
+    # temporarily add company_id to enable joining the sector split
+    dplyr::left_join(
+      abcd_id,
+      by = c("name_abcd" = "name_company")
+    ) %>%
     dplyr::left_join(
       companies_sector_split,
-      by = c("name_abcd" = "name_company", "sector_abcd" = "sector")
+      by = c("company_id", "sector_abcd" = "sector")
     ) %>%
     dplyr::mutate(
       # renaming the loan_id is not conditional to avoid any chance of accidentally
@@ -86,7 +94,7 @@ if (apply_sector_split) {
         .data$loan_size_credit_limit * .data$sector_split
       )
     ) %>%
-    dplyr::select(-"sector_split")
+    dplyr::select(-c("company_id", "sector_split"))
 }
 
 # create summary of loan book coverage----

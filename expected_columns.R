@@ -119,7 +119,7 @@ col_select_matched_all_groups <- names(col_types_matched_all_groups[["cols"]])
 
 # expected columns companies_sector_split file
 col_types_companies_sector_split <- readr::cols_only(
-  name_company = "c",
+  company_id = "i",
   sector = "c",
   sector_split = "n"
 )
