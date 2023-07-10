@@ -147,7 +147,6 @@ file `companies_sector_split.csv` into the matched directory as set up
 in `.env`.
 
 ### Usage of the sector split
-REWORK SECTION to allow applying a set of different rules.
 When companies operate in multiple sectors within the PACTA scope the following rules can be used to split the loan value between the different sectors:
 
 **Rule 1:**
@@ -171,6 +170,13 @@ When companies operate in multiple sectors within the PACTA scope the following 
   - Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
 
   - Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+  
+   **Rule 2c)**
+
+  - Case description: Multiple business operations are in the PACTA scope and are found both in in energy-related sectors (Oil & Gas, Coal, power) and non-energy related sectors.
+
+  - Outcome: Loans are to be split evenly by the number of sectors. For the energy sectors, the remaining share after evenly splitting the loan is then allocated based on a common primary energy production unit (tons of oil equivalent).
+
 
 ## Methodological note: Sector split for energy companies
 
