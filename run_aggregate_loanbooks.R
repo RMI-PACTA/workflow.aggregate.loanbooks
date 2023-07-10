@@ -476,7 +476,8 @@ if (!is.null(data_sankey)) {
   plot_sankey(
     data_sankey,
     save_png_to = output_path_aggregated,
-    png_name = "sankey_sector.png"
+    png_name = "sankey_sector.png",
+    nodes_order_from_data = TRUE
   )
 }
 
