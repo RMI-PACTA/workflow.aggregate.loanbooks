@@ -14,8 +14,9 @@ library(vroom)
 dotenv::load_dot_env()
 source("expected_columns.R")
 
-# set up project paths----
+# set up project----
 if (file.exists(here::here(".env"))) {
+  # paths
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
@@ -28,15 +29,19 @@ if (file.exists(here::here(".env"))) {
 
   output_path <- Sys.getenv("DIR_OUTPUT")
   output_path_standard <- file.path(output_path, "standard")
+
+  # project parameters
+  scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
+  scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
+  region_select <- Sys.getenv("PARAM_REGION_SELECT")
+  apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
+  if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+
 } else {
   stop("Please set up a configuration file at the root of the repository, as
        explained in the README.md")
 }
 
-# set project parameters----
-scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
-region_select <- Sys.getenv("PARAM_REGION_SELECT")
 
 # TODO: add check if all files exist, resort to test files if not
 
@@ -94,6 +99,45 @@ matched_prioritized <- readr::read_csv(
   col_types = col_types_matched_prio_all_groups,
   col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
+
+# optional: apply sector split----
+if (apply_sector_split) {
+  companies_sector_split <- readr::read_csv(
+    file.path(input_path_matched, "companies_sector_split.csv"),
+    col_types = col_types_companies_sector_split,
+    col_select = dplyr::all_of(col_select_companies_sector_split)
+  )
+
+  abcd_id <- abcd %>%
+    dplyr::distinct(.data$company_id, .data$name_company)
+
+  matched_prioritized <- matched_prioritized %>%
+    # temporarily add company_id to enable joining the sector split
+    dplyr::left_join(
+      abcd_id,
+      by = c("name_abcd" = "name_company")
+    ) %>%
+    dplyr::left_join(
+      companies_sector_split,
+      by = c("company_id", "sector_abcd" = "sector")
+    ) %>%
+    dplyr::mutate(
+      # renaming the loan_id is not conditional to avoid any chance of accidentally
+      # renaming a split loan to a loan_id that already exists elsewhere
+      id_loan = paste(.data$id_loan, .data$sector_abcd, sep = "_"),
+      loan_size_outstanding = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_outstanding,
+        .data$loan_size_outstanding * .data$sector_split
+      ),
+      loan_size_credit_limit = dplyr::if_else(
+        is.na(.data$sector_split),
+        .data$loan_size_credit_limit,
+        .data$loan_size_credit_limit * .data$sector_split
+      )
+    ) %>%
+    dplyr::select(-c("company_id", "sector_split"))
+}
 
 # generate all P4B outputs----
 unique_loanbooks_matched <- unique(matched_prioritized$group_id)
