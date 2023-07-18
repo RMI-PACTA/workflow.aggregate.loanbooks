@@ -39,6 +39,8 @@ if (file.exists(here::here(".env"))) {
   benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+  remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
+  if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
 
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -94,6 +96,37 @@ abcd <- readr::read_csv(
 )
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
+
+# optional: remove company-sector combinations where production in t5 = 0 when
+# it was greater than 0 in t0.
+if (remove_inactive_companies) {
+  abcd_no_prod_t5 <- abcd %>%
+    dplyr::filter(
+      year %in% c(.env$start_year, .env$start_year + .env$time_frame_select)
+    ) %>%
+    dplyr::summarise(
+      sum_production = sum(production, na.rm = TRUE),
+      .by =c("name_company", "sector", "year")
+    ) %>%
+    tidyr::pivot_wider(
+      names_from = "year",
+      names_prefix = "prod_",
+      values_from = "sum_production"
+    ) %>%
+    dplyr::filter(
+      !!rlang::sym(paste0("prod_", start_year)) > 0,
+      !!rlang::sym(paste0("prod_", start_year + time_frame_select)) == 0
+    )
+
+  comp_sec_no_prod_t5 <- abcd_no_prod_t5 %>%
+    dplyr::distinct(.data$name_company, .data$sector)
+
+  abcd <- abcd %>%
+    dplyr::anti_join(
+      comp_sec_no_prod_t5,
+      by = c("name_company", "sector")
+    )
+}
 
 # add loan book with corporate economy benchmark----
 # benchmark_region can be selected based on r2dii.data::region_isos

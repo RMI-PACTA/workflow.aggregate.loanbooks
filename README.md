@@ -59,6 +59,7 @@ PARAM_START_YEAR=2022
 PARAM_TIME_FRAME=5
 # regions must be available for the selected scenario
 PARAM_BENCHMARK_REGIONS="global,european union"
+REMOVE_INACTIVE_COMPANIES=TRUE
 ```
 
 These configurations set up required directories (prefixed `DIR_`),
