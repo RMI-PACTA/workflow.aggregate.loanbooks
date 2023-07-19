@@ -13,6 +13,7 @@ library(vroom)
 
 dotenv::load_dot_env()
 source("expected_columns.R")
+source("functions_prep_project.R")
 
 # set up project----
 if (file.exists(here::here(".env"))) {
@@ -36,6 +37,8 @@ if (file.exists(here::here(".env"))) {
   region_select <- Sys.getenv("PARAM_REGION_SELECT")
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+  remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
+  if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
 
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -92,6 +95,16 @@ abcd <- readr::read_csv(
 )
 # replace potential NA values with 0 in production
 abcd["production"][is.na(abcd["production"])] <- 0
+
+# optional: remove company-sector combinations where production in t5 = 0 when
+# it was greater than 0 in t0.
+if (remove_inactive_companies) {
+  abcd <- abcd %>%
+    rm_inactive_companies(
+      start_year = start_year,
+      time_frame_select = time_frame_select
+    )
+}
 
 # read matched and prioritized loan book----
 matched_prioritized <- readr::read_csv(
