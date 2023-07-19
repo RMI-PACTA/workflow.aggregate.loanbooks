@@ -408,7 +408,8 @@ for (i in unique_benchmarks_sda) {
 # bind the SDA results from the loan book and benchmark PACTA runs for further
 # aggregation
 sda_result_for_aggregation <- sda_result_for_aggregation %>%
-  dplyr::bind_rows(sda_result_for_aggregation_benchmark)
+  dplyr::bind_rows(sda_result_for_aggregation_benchmark) %>%
+  dplyr::filter(.data$year >= .env$start_year)
 
 ## aggregate SDA P4B results to company level alignment metric----
 # calculate aggregation for the loan book
