@@ -197,7 +197,7 @@ The primary energy efficiency factors are taken from the IEA[^1].
 
 [^1]: IEA (2008) Energy efficiency indicators for public electricity production from fossil fuels, IEA Information Paper, OECD/IEA, July 2008
 
-Then in the next step the conversion to common units of primary energy across sectors is made. The conversion factors ($F$) are taken from the [IEA World Energy Balances 2022](http://wds.iea.org/wds/pdf/WORLDBAL_Documentation.pdf) publication and the [IEA Unit Converter](https://www.iea.org/data-and-statistics/data-tools/unit-converter).
+Then in the next step the conversion to common units of primary energy across the three respective sectors mentioned is made. The conversion factors ($F$) are taken from the [IEA World Energy Balances 2022](http://wds.iea.org/wds/pdf/WORLDBAL_Documentation.pdf) publication and the [IEA Unit Converter](https://www.iea.org/data-and-statistics/data-tools/unit-converter).
 
 The output in Mtoe for $a$ company $c$ in sector $b$ with conversion factor $F$ is:
 
