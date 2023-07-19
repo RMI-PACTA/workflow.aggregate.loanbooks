@@ -183,7 +183,7 @@ When companies operate in multiple sectors within the PACTA scope the following 
 
 Where a company has activities in multiple energy-related sectors, a common output unit of primary energy is needed to compare quantities across sectors. The chosen common unit of primary energy is million tons of oil equivalent (Mtoe) and is converted for the respective sectors as follows:
 
-- coal mining sector is converted from metric tonnes of coal
+- coal mining sector is converted from metric tonnes of coal (t coal)
 - upstream oil & gas is converted from gigajoules (GJ)
 - power generation is converted from megawatt hours (MWh)
 
