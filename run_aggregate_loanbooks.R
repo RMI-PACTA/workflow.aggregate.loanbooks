@@ -13,6 +13,7 @@ library(vroom)
 
 dotenv::load_dot_env()
 source("expected_columns.R")
+source("functions_prep_project.R")
 
 # set up project----
 if (file.exists(here::here(".env"))) {
@@ -100,31 +101,10 @@ abcd["production"][is.na(abcd["production"])] <- 0
 # optional: remove company-sector combinations where production in t5 = 0 when
 # it was greater than 0 in t0.
 if (remove_inactive_companies) {
-  abcd_no_prod_t5 <- abcd %>%
-    dplyr::filter(
-      year %in% c(.env$start_year, .env$start_year + .env$time_frame_select)
-    ) %>%
-    dplyr::summarise(
-      sum_production = sum(production, na.rm = TRUE),
-      .by =c("name_company", "sector", "year")
-    ) %>%
-    tidyr::pivot_wider(
-      names_from = "year",
-      names_prefix = "prod_",
-      values_from = "sum_production"
-    ) %>%
-    dplyr::filter(
-      !!rlang::sym(paste0("prod_", start_year)) > 0,
-      !!rlang::sym(paste0("prod_", start_year + time_frame_select)) == 0
-    )
-
-  comp_sec_no_prod_t5 <- abcd_no_prod_t5 %>%
-    dplyr::distinct(.data$name_company, .data$sector)
-
   abcd <- abcd %>%
-    dplyr::anti_join(
-      comp_sec_no_prod_t5,
-      by = c("name_company", "sector")
+    rm_inactive_companies(
+      start_year = start_year,
+      time_frame_select = time_frame_select
     )
 }
 
