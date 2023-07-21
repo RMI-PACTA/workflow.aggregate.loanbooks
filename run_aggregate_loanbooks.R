@@ -145,35 +145,11 @@ if (apply_sector_split) {
     col_select = dplyr::all_of(col_select_companies_sector_split)
   )
 
-  abcd_id <- abcd %>%
-    dplyr::distinct(.data$company_id, .data$name_company)
-
   matched_prioritized <- matched_prioritized %>%
-    # temporarily add company_id to enable joining the sector split
-    dplyr::left_join(
-      abcd_id,
-      by = c("name_abcd" = "name_company")
-    ) %>%
-    dplyr::left_join(
-      companies_sector_split,
-      by = c("company_id", "sector_abcd" = "sector")
-    ) %>%
-    dplyr::mutate(
-      # renaming the loan_id is not conditional to avoid any chance of accidentally
-      # renaming a split loan to a loan_id that already exists elsewhere
-      id_loan = paste(.data$id_loan, .data$sector_abcd, sep = "_"),
-      loan_size_outstanding = dplyr::if_else(
-        is.na(.data$sector_split),
-        .data$loan_size_outstanding,
-        .data$loan_size_outstanding * .data$sector_split
-      ),
-      loan_size_credit_limit = dplyr::if_else(
-        is.na(.data$sector_split),
-        .data$loan_size_credit_limit,
-        .data$loan_size_credit_limit * .data$sector_split
-      )
-    ) %>%
-    dplyr::select(-c("company_id", "sector_split"))
+    apply_sector_split_to_loans(
+      abcd = abcd,
+      companies_sector_split = companies_sector_split
+    )
 }
 
 # aggregate P4B alignment----
