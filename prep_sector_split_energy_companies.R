@@ -106,7 +106,10 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
       TRUE ~ tolower(.data$technology)
     )
   ) %>%
-  dplyr::filter(!.data$sector %in% c("hdv", "shipping")) %>%
+  dplyr::filter(
+    !.data$sector %in% c("hdv", "shipping"),
+    !.data$activity_unit == "tkm"
+  ) %>%
   dplyr::summarise(
     value = sum(.data$value, na.rm = TRUE),
     .by = c("company_id", "company_name", "sector", "technology", "activity_unit", "year")
