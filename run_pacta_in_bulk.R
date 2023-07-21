@@ -35,6 +35,8 @@ if (file.exists(here::here(".env"))) {
   scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
   scenario_select <- Sys.getenv("PARAM_SCENARIO_SELECT")
   region_select <- Sys.getenv("PARAM_REGION_SELECT")
+  start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+  time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
   remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
