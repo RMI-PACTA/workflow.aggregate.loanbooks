@@ -106,7 +106,10 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
       TRUE ~ tolower(.data$technology)
     )
   ) %>%
-  dplyr::filter(!.data$sector %in% c("hdv", "shipping")) %>%
+  dplyr::filter(
+    !.data$sector %in% c("hdv", "shipping"),
+    !.data$activity_unit == "tkm"
+  ) %>%
   dplyr::summarise(
     value = sum(.data$value, na.rm = TRUE),
     .by = c("company_id", "company_name", "sector", "technology", "activity_unit", "year")
@@ -115,7 +118,8 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
     name_company = "company_name",
     production = "value",
     production_unit = "activity_unit"
-  )
+  ) %>%
+  dplyr::filter(production > 0)
 
 ### count number of sectors and energy sectors per company----
 multi_sector_companies_prep <- advanced_company_indicators %>%
@@ -171,6 +175,16 @@ sector_split_all_companies <- advanced_company_indicators %>%
     .by = c("company_id", "name_company", "sector", "year", "production_unit")
   )
 
+check_sector_split_all_companies <- sector_split_all_companies %>%
+  dplyr::summarise(
+    sum_share = sum(sector_split, na.rm = TRUE),
+    .by = "company_id"
+  )
+if (any(round(check_sector_split_all_companies$sum_share, 3) != 1)) {
+  stop("sector_split_all_companies contains companies for which the sum of the sector split deviates from 1")
+}
+
+
 ## calcualte primary energy-based sector split for energy sectors----
 sector_split_energy_companies <- advanced_company_indicators %>%
   dplyr::filter(
@@ -214,8 +228,16 @@ sector_split_energy_companies <- sector_split_energy_companies %>%
   ) %>%
   dplyr::select(
     dplyr::all_of(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split"))
-  ) %>%
-  dplyr::distinct()
+  )
+
+check_sector_split_energy_companies <- sector_split_energy_companies %>%
+  dplyr::summarise(
+    sum_share = sum(sector_split, na.rm = TRUE),
+    .by = "company_id"
+  )
+if (any(round(check_sector_split_energy_companies$sum_share, 3) != 1)) {
+  stop("sector_split_energy_companies contains companies for which the sum of the sector split deviates from 1")
+}
 
 ## combine the sector splits----
 # ... to use equal weights for non energy sectors and scaled primary energy bsaed splits for energy sectors
@@ -237,6 +259,16 @@ sector_split_all_companies_final <- sector_split_all_companies %>%
     production = "production_all",
     production_unit = "production_unit_all"
   )
+
+check_sector_split_all_companies_final <- sector_split_all_companies_final %>%
+  dplyr::summarise(
+    sum_share = sum(sector_split, na.rm = TRUE),
+    .by = "company_id"
+  )
+if (any(round(check_sector_split_all_companies_final$sum_share, 3) != 1)) {
+  stop("sector_split_all_companies_final contains companies for which the sum of the sector split deviates from 1")
+}
+
 
 ## write output----
 sector_split_energy_companies %>%
