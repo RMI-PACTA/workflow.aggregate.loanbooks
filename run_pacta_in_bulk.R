@@ -57,12 +57,12 @@ if (file.exists(here::here(".env"))) {
 regions_geco_2022 <- readr::read_csv(
   input_path_regions_geco_2022,
   col_types = col_types_region_isos,
-  col_select = col_select_region_isos
+  col_select = dplyr::all_of(col_select_region_isos)
 )
 regions_weo_2022 <- readr::read_csv(
   input_path_regions_weo_2022,
   col_types = col_types_region_isos,
-  col_select = col_select_region_isos
+  col_select = dplyr::all_of(col_select_region_isos)
 )
 
 region_isos_complete <- r2dii.data::region_isos %>%
