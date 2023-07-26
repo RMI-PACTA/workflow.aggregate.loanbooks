@@ -39,6 +39,7 @@ if (file.exists(here::here(".env"))) {
   time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+  if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
   remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
   if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
 
@@ -117,16 +118,26 @@ matched_prioritized <- readr::read_csv(
 
 # optional: apply sector split----
 if (apply_sector_split) {
-  companies_sector_split <- readr::read_csv(
-    file.path(input_path_matched, "companies_sector_split.csv"),
-    col_types = col_types_companies_sector_split,
-    col_select = dplyr::all_of(col_select_companies_sector_split)
-  )
+  # NOTE: to generate the worst case sector split, you need to run the script `run_aggregate_loanbooks.R`
+  if (sector_split_type_select == "equal_weights") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split.csv"),
+      col_types = col_types_companies_sector_split,
+      col_select = dplyr::all_of(col_select_companies_sector_split)
+    )
+  } else if (sector_split_type_select == "worst_case") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split_worst_case.csv"),
+      col_types = col_types_companies_sector_split_worst_case,
+      col_select = dplyr::all_of(col_select_companies_sector_split_worst_case)
+    )
+  }
 
   matched_prioritized <- matched_prioritized %>%
     apply_sector_split_to_loans(
       abcd = abcd,
-      companies_sector_split = companies_sector_split
+      companies_sector_split = companies_sector_split,
+      sector_split_type = sector_split_type_select
     )
 }
 

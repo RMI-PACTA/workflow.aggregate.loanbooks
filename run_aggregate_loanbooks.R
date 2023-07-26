@@ -40,8 +40,10 @@ if (file.exists(here::here(".env"))) {
   benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+  if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
   remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
   if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
+
 
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -139,16 +141,25 @@ matched_prioritized <- readr::read_csv(
 
 # optional: apply sector split----
 if (apply_sector_split) {
-  companies_sector_split <- readr::read_csv(
-    file.path(input_path_matched, "companies_sector_split.csv"),
-    col_types = col_types_companies_sector_split,
-    col_select = dplyr::all_of(col_select_companies_sector_split)
-  )
+  if (sector_split_type_select == "equal_weights") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split.csv"),
+      col_types = col_types_companies_sector_split,
+      col_select = dplyr::all_of(col_select_companies_sector_split)
+    )
+  } else if (sector_split_type_select == "worst_case") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split_worst_case.csv"),
+      col_types = col_types_companies_sector_split_worst_case,
+      col_select = dplyr::all_of(col_select_companies_sector_split_worst_case)
+    )
+  }
 
   matched_prioritized <- matched_prioritized %>%
     apply_sector_split_to_loans(
       abcd = abcd,
-      companies_sector_split = companies_sector_split
+      companies_sector_split = companies_sector_split,
+      sector_split_type = sector_split_type_select
     )
 }
 
@@ -409,6 +420,38 @@ company_aggregated_alignment_net_sda %>%
 # loan book to derive some high level summary statistics on the loan book level
 company_aggregated_alignment_net <- company_aggregated_alignment_net_tms %>%
   dplyr::bind_rows(company_aggregated_alignment_net_sda)
+
+# generate worst case sector splits
+if (apply_sector_split & sector_split_type_select != "worst_case") {
+  companies_sector_split_worst_case <- company_aggregated_alignment_net %>%
+    dplyr::filter(.data$year == .env$start_year + .env$time_frame_select) %>%
+    dplyr::group_by(
+      .data$group_id, .data$name_abcd, .data$region, .data$scenario_source, .data$scenario, .data$direction
+    ) %>%
+    dplyr::slice_min(.data$alignment_metric) %>%
+    dplyr::ungroup() %>%
+    dplyr::distinct(.data$name_abcd, .data$sector) %>%
+    dplyr::mutate(sector_split = 1) %>%
+    dplyr::rename(name_company = "name_abcd")
+
+  # companies_sector_split_remaining_sectors <- company_aggregated_alignment_net %>%
+  #   dplyr::filter(.data$year == .env$start_year + .env$time_frame_select) %>%
+  #   dplyr::distinct(.data$name_abcd, .data$sector) %>%
+  #   dplyr::anti_join(
+  #     companies_sector_split_worst_case,
+  #     by = c("name_abcd", "sector")
+  #   ) %>%
+  #   dplyr::mutate(sector_split = 0) %>%
+  # dplyr::rename(name_company = "name_abcd")
+  #
+  # companies_sector_split_worst_case <- companies_sector_split_worst_case %>%
+  #   dplyr::bind_rows(companies_sector_split_remaining_sectors)
+
+  companies_sector_split_worst_case  %>%
+    readr::write_csv(
+      file.path(input_path_matched, "companies_sector_split_worst_case.csv")
+    )
+}
 
 # show exposures (n companies and loan size) by alignment with given scenario
 

@@ -33,19 +33,24 @@ rm_inactive_companies <- function(data,
 
 apply_sector_split_to_loans <- function(data,
                                         abcd,
-                                        companies_sector_split) {
-  abcd_id <- abcd %>%
-    dplyr::distinct(.data$company_id, .data$name_company)
+                                        companies_sector_split,
+                                        sector_split_type) {
+  if (sector_split_type == "equal_weights") {
+    abcd_id <- abcd %>%
+      dplyr::distinct(.data$company_id, .data$name_company)
+
+    companies_sector_split <- companies_sector_split %>%
+      dplyr::left_join(
+        abcd_id,
+        by = c("company_id")
+      ) %>%
+      dplyr::select(-"company_id")
+  }
 
   data <- data %>%
-    # temporarily add company_id to enable joining the sector split
-    dplyr::left_join(
-      abcd_id,
-      by = c("name_abcd" = "name_company")
-    ) %>%
-    dplyr::left_join(
+    dplyr::inner_join(
       companies_sector_split,
-      by = c("company_id", "sector_abcd" = "sector")
+      by = c("name_abcd" = "name_company", "sector_abcd" = "sector")
     ) %>%
     dplyr::mutate(
       # renaming the loan_id is not conditional to avoid any chance of accidentally
@@ -62,5 +67,5 @@ apply_sector_split_to_loans <- function(data,
         .data$loan_size_credit_limit * .data$sector_split
       )
     ) %>%
-    dplyr::select(-c("company_id", "sector_split"))
+    dplyr::select(-"sector_split")
 }
