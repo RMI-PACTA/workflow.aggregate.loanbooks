@@ -1,7 +1,11 @@
 # This script can be used to derive company-specific sector shares for companies
-# that are active in two or more of the in-scope PACTA sectors, with an option
+# that are active in two or more of the in-scope PACTA sectors. There are a
+# number of ways how to calculate sector splits. One option is to calculate
+# sector splits based on an equal weights approach, with an option
 # to use primary energy inputs to calculate the shares for PACTA energy sectors:
-# Coal, Oil & Gas, Power.
+# Coal, Oil & Gas, Power. Another option is to allocate the split entirely to
+# the worst performing sector, based on the aggregate alignment metric on the
+# company-sector level.
 # The initial sector split is calculated as an equal weights split based on the
 # number of in-scope sectors the company operates in. The energy-focused second
 # step calculates energy sector splits based on a common unit of economic
@@ -49,10 +53,50 @@ dotenv::load_dot_env()
 input_path_split <- file.path(Sys.getenv("DIR_SPLIT_COMPANY_ID"), Sys.getenv("FILENAME_SPLIT_COMPANY_ID"))
 input_path_advanced_company_indicators <- file.path(Sys.getenv("DIR_ADVANCED_COMPANY_INDICATORS"), Sys.getenv("FILENAME_ADVANCED_COMPANY_INDICATORS"))
 input_path_matched <- Sys.getenv("DIR_MATCHED")
+output_path <- Sys.getenv("DIR_OUTPUT")
+output_path_aggregated <- file.path(output_path, "aggregated")
 
 # start_year should match the year of the ABCD data release
 start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
 
+# generate worst case sector split----
+# NOTE: this requires having run the script run_aggregate_loanbooks.R, as the
+# generation of the worst case sector split depends on the availability of
+# company level results for all sectors.
+# This can be obtained, e.g., by running the analysis using equal weights.
+
+## load input data----
+# generate worst case sector splits
+company_aggregated_alignment_net_tms <-
+  readr::read_csv(file.path(output_path_aggregated, "company_aggregated_alignment_net_tms.csv"))
+
+company_aggregated_alignment_net_sda <-
+  readr::read_csv(file.path(output_path_aggregated, "company_aggregated_alignment_net_sda.csv"))
+
+company_aggregated_alignment_net <- company_aggregated_alignment_net_tms %>%
+  dplyr::bind_rows(company_aggregated_alignment_net_sda)
+
+## calculate sector split----
+
+companies_sector_split_worst_case <- company_aggregated_alignment_net %>%
+  dplyr::filter(.data$year == .env$start_year + .env$time_frame_select) %>%
+  dplyr::group_by(
+    .data$group_id, .data$name_abcd, .data$region, .data$scenario_source, .data$scenario, .data$direction
+  ) %>%
+  dplyr::slice_min(.data$alignment_metric) %>%
+  dplyr::ungroup() %>%
+  dplyr::distinct(.data$name_abcd, .data$sector) %>%
+  dplyr::mutate(sector_split = 1) %>%
+  dplyr::rename(name_company = "name_abcd")
+
+## write output----
+companies_sector_split_worst_case  %>%
+  readr::write_csv(
+    file.path(input_path_matched, "companies_sector_split_worst_case.csv")
+  )
+
+# generate equal weights / primary energy sector split----
 ## load input data----
 # TODO: add to .env to allow for flexibility
 advanced_company_indicators_sheet <- "Company Activities"

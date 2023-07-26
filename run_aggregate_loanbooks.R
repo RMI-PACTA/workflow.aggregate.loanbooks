@@ -421,25 +421,6 @@ company_aggregated_alignment_net_sda %>%
 company_aggregated_alignment_net <- company_aggregated_alignment_net_tms %>%
   dplyr::bind_rows(company_aggregated_alignment_net_sda)
 
-# generate worst case sector splits
-if (apply_sector_split & sector_split_type_select != "worst_case") {
-  companies_sector_split_worst_case <- company_aggregated_alignment_net %>%
-    dplyr::filter(.data$year == .env$start_year + .env$time_frame_select) %>%
-    dplyr::group_by(
-      .data$group_id, .data$name_abcd, .data$region, .data$scenario_source, .data$scenario, .data$direction
-    ) %>%
-    dplyr::slice_min(.data$alignment_metric) %>%
-    dplyr::ungroup() %>%
-    dplyr::distinct(.data$name_abcd, .data$sector) %>%
-    dplyr::mutate(sector_split = 1) %>%
-    dplyr::rename(name_company = "name_abcd")
-
-  companies_sector_split_worst_case  %>%
-    readr::write_csv(
-      file.path(input_path_matched, "companies_sector_split_worst_case.csv")
-    )
-}
-
 # show exposures (n companies and loan size) by alignment with given scenario
 
 # net
