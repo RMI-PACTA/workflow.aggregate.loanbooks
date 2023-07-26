@@ -434,19 +434,6 @@ if (apply_sector_split & sector_split_type_select != "worst_case") {
     dplyr::mutate(sector_split = 1) %>%
     dplyr::rename(name_company = "name_abcd")
 
-  # companies_sector_split_remaining_sectors <- company_aggregated_alignment_net %>%
-  #   dplyr::filter(.data$year == .env$start_year + .env$time_frame_select) %>%
-  #   dplyr::distinct(.data$name_abcd, .data$sector) %>%
-  #   dplyr::anti_join(
-  #     companies_sector_split_worst_case,
-  #     by = c("name_abcd", "sector")
-  #   ) %>%
-  #   dplyr::mutate(sector_split = 0) %>%
-  # dplyr::rename(name_company = "name_abcd")
-  #
-  # companies_sector_split_worst_case <- companies_sector_split_worst_case %>%
-  #   dplyr::bind_rows(companies_sector_split_remaining_sectors)
-
   companies_sector_split_worst_case  %>%
     readr::write_csv(
       file.path(input_path_matched, "companies_sector_split_worst_case.csv")
