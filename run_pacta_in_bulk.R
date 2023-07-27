@@ -132,7 +132,7 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
       col_types = col_types_companies_sector_split,
       col_select = dplyr::all_of(col_select_companies_sector_split)
     )
-  } else if (sector_split_type_select == "worst_case") {
+  } else {
     companies_sector_split <- readr::read_csv(
       file.path(input_path_matched, "companies_sector_split_worst_case.csv"),
       col_types = col_types_companies_sector_split_worst_case,
