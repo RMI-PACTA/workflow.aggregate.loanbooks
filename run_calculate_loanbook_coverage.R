@@ -9,6 +9,7 @@ library(vroom)
 
 dotenv::load_dot_env()
 source("expected_columns.R")
+source("functions_prep_project.R")
 
 # set up project----
 if (file.exists(here::here(".env"))) {
@@ -22,13 +23,21 @@ if (file.exists(here::here(".env"))) {
 
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
 
-  output_path <- Sys.getenv("DIR_OUTPUT")
+  output_path <- input_path_matched
 
   # project parameters
   scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
   start_year_select <- Sys.getenv("PARAM_START_YEAR")
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
+  if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
+
+  # if a sector split is applied, write results into a directory that states the type
+  if (apply_sector_split) {
+    output_path <- file.path(output_path, sector_split_type_select)
+  }
+
+  dir.create(output_path, recursive = TRUE)
 
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -59,42 +68,27 @@ matched_prioritized <- readr::read_csv(
 )
 
 # optional: apply sector split----
-if (apply_sector_split) {
-  companies_sector_split <- readr::read_csv(
-    file.path(input_path_matched, "companies_sector_split.csv"),
-    col_types = col_types_companies_sector_split,
-    col_select = dplyr::all_of(col_select_companies_sector_split)
-  )
-
-  abcd_id <- abcd %>%
-    dplyr::distinct(.data$company_id, .data$name_company)
+if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst_case")) {
+  if (sector_split_type_select == "equal_weights") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split.csv"),
+      col_types = col_types_companies_sector_split,
+      col_select = dplyr::all_of(col_select_companies_sector_split)
+    )
+  } else if (sector_split_type_select == "worst_case") {
+    companies_sector_split <- readr::read_csv(
+      file.path(input_path_matched, "companies_sector_split_worst_case.csv"),
+      col_types = col_types_companies_sector_split_worst_case,
+      col_select = dplyr::all_of(col_select_companies_sector_split_worst_case)
+    )
+  }
 
   matched_prioritized <- matched_prioritized %>%
-    # temporarily add company_id to enable joining the sector split
-    dplyr::left_join(
-      abcd_id,
-      by = c("name_abcd" = "name_company")
-    ) %>%
-    dplyr::left_join(
-      companies_sector_split,
-      by = c("company_id", "sector_abcd" = "sector")
-    ) %>%
-    dplyr::mutate(
-      # renaming the loan_id is not conditional to avoid any chance of accidentally
-      # renaming a split loan to a loan_id that already exists elsewhere
-      id_loan = paste(.data$id_loan, .data$sector_abcd, sep = "_"),
-      loan_size_outstanding = dplyr::if_else(
-        is.na(.data$sector_split),
-        .data$loan_size_outstanding,
-        .data$loan_size_outstanding * .data$sector_split
-      ),
-      loan_size_credit_limit = dplyr::if_else(
-        is.na(.data$sector_split),
-        .data$loan_size_credit_limit,
-        .data$loan_size_credit_limit * .data$sector_split
-      )
-    ) %>%
-    dplyr::select(-c("company_id", "sector_split"))
+    apply_sector_split_to_loans(
+      abcd = abcd,
+      companies_sector_split = companies_sector_split,
+      sector_split_type = sector_split_type_select
+    )
 }
 
 # create summary of loan book coverage----
@@ -200,5 +194,5 @@ production_coverage_summary <- production_coverage_summary %>%
 
 # save to matched directory
 production_coverage_summary %>%
-  readr::write_csv(file.path(input_path_matched, "summary_statistics_loanbook_coverage.csv"))
+  readr::write_csv(file.path(output_path, "summary_statistics_loanbook_coverage.csv"))
 

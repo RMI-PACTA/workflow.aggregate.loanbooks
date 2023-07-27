@@ -44,6 +44,12 @@ if (file.exists(here::here(".env"))) {
   remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
   if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
 
+  # if a sector split is applied, write results into a directory that states the type
+  if (apply_sector_split) {
+    output_path_aggregated <- file.path(output_path, sector_split_type_select, "aggregated")
+  }
+
+  dir.create(output_path_aggregated, recursive = TRUE)
 
 } else {
   stop("Please set up a configuration file at the root of the repository, as
@@ -140,7 +146,7 @@ matched_prioritized <- readr::read_csv(
 )
 
 # optional: apply sector split----
-if (apply_sector_split) {
+if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst_case")) {
   if (sector_split_type_select == "equal_weights") {
     companies_sector_split <- readr::read_csv(
       file.path(input_path_matched, "companies_sector_split.csv"),
