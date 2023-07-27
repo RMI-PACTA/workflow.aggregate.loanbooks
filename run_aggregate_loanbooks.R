@@ -13,7 +13,7 @@ library(vroom)
 
 dotenv::load_dot_env()
 source("expected_columns.R")
-source("functions_prep_project.R")
+source("R/functions_prep_project.R")
 
 # set up project----
 if (file.exists(here::here(".env"))) {
