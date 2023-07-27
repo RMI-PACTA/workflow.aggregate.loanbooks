@@ -124,3 +124,11 @@ col_types_companies_sector_split <- readr::cols_only(
   sector_split = "n"
 )
 col_select_companies_sector_split <- names(col_types_companies_sector_split[["cols"]])
+
+# expected columns companies_sector_split_worst_case file
+col_types_companies_sector_split_worst_case <- readr::cols_only(
+  name_company = "c",
+  sector = "c",
+  sector_split = "n"
+)
+col_select_companies_sector_split_worst_case <- names(col_types_companies_sector_split_worst_case[["cols"]])
