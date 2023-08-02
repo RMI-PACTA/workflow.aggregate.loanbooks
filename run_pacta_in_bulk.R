@@ -328,7 +328,7 @@ generate_individual_outputs <- function(data,
                   perc_y_scale = TRUE
                 ) +
                 ggplot2::labs(
-                  title = glue::glue("Valume Trajectory: {tools::toTitleCase(technologies_to_plot[i])}"),
+                  title = glue::glue("Volume Trajectory: {tools::toTitleCase(technologies_to_plot[i])}"),
                   subtitle = glue::glue("Institution ID: {group_id}")
                 ) +
                 ggplot2::xlab("Year") +
