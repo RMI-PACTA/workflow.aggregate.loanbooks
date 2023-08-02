@@ -182,12 +182,12 @@ unique_groups_sda <- unique_loanbooks_matched
 # to enter a new market to build out hydro power or nuclear power, as this may
 # not be feasible for political and/or geographic reasons.
 # in the power sector, only renewables continues to follow the SMSP logic
-green_or_brown_aggregate_alignment <- r2dii.data::green_or_brown %>%
+increasing_or_decreasing_aggregate_alignment <- r2dii.data::increasing_or_decreasing %>%
   dplyr::mutate(
-    green_or_brown = dplyr::if_else(
+    increasing_or_decreasing = dplyr::if_else(
       .data$technology %in% c("hydrocap", "nuclearcap"),
-      "brown",
-      .data$green_or_brown
+      "decreasing",
+      .data$increasing_or_decreasing
     )
   )
 
@@ -196,11 +196,11 @@ green_or_brown_aggregate_alignment <- r2dii.data::green_or_brown %>%
 technology_direction <- scenario_input_tms %>%
   dplyr::filter(.data$year %in% c(2022, 2027)) %>%
   dplyr::distinct(.data$scenario_source, .data$scenario, .data$sector, .data$technology, .data$region) %>%
-  dplyr::inner_join(r2dii.data::green_or_brown, by = c("sector", "technology")) %>%
+  dplyr::inner_join(r2dii.data::increasing_or_decreasing, by = c("sector", "technology")) %>%
   dplyr::mutate(
-    directional_dummy = dplyr::if_else(.data$green_or_brown == "green", 1, -1)
+    directional_dummy = dplyr::if_else(.data$increasing_or_decreasing == "increasing", 1, -1)
   ) %>%
-  dplyr::select(-"green_or_brown")
+  dplyr::select(-"increasing_or_decreasing")
 
 # add benchmark loan book for aggregation
 matched_total <- matched_prioritized %>%
@@ -221,7 +221,7 @@ for (i in unique_groups_tms) {
         region_isos = region_isos_select,
         by_company = TRUE,
         weight_production = FALSE,
-        green_or_brown = green_or_brown_aggregate_alignment
+        increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
       )
 
       tms_result_for_aggregation_i <- tms_result_for_aggregation_i %>%
@@ -267,7 +267,7 @@ for (i in unique_benchmarks_tms) {
         region_isos = region_isos_select,
         by_company = TRUE,
         weight_production = FALSE,
-        green_or_brown = green_or_brown_aggregate_alignment
+        increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
       )
 
       tms_result_for_aggregation_benchmark_i <- tms_result_for_aggregation_benchmark_i %>%
