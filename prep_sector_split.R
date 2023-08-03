@@ -185,11 +185,7 @@ multi_sector_companies_prep <- advanced_company_indicators %>%
     .by = c("company_id", "n_sectors")
   )
 
-### identify compenies active in more than one sector----
-# multi_sector_companies_all <- multi_sector_companies_prep %>%
-#   dplyr::filter(.data$n_sectors > 1)
-
-### identify compenies active in more than one energy sector----
+### identify companies active in more than one energy sector----
 multi_sector_companies_energy <- multi_sector_companies_prep %>%
   dplyr::filter(.data$n_energy_sectors > 1) %>%
   dplyr::pull(.data$company_id)
@@ -207,7 +203,6 @@ sector_split_all_companies <- advanced_company_indicators %>%
   ) %>%
   dplyr::inner_join(
     multi_sector_companies_prep,
-    # multi_sector_companies_all,
     by = "company_id"
   ) %>%
   dplyr::mutate(
