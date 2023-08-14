@@ -35,6 +35,9 @@ apply_sector_split_to_loans <- function(data,
                                         abcd,
                                         companies_sector_split,
                                         sector_split_type) {
+  unique_companies_pre_split <- data %>%
+    distinct(name_abcd)
+
   if (sector_split_type == "equal_weights") {
     abcd_id <- abcd %>%
       dplyr::distinct(.data$company_id, .data$name_company)
@@ -68,4 +71,20 @@ apply_sector_split_to_loans <- function(data,
       )
     ) %>%
     dplyr::select(-"sector_split")
+
+  unique_companies_post_split <- data %>%
+    distinct(name_abcd)
+
+  if (nrow(unique_companies_pre_split) != nrow(unique_companies_post_split)) {
+    warning(
+      glue::glue(
+        "Applying the sector split has lead to changes in the number of unique
+        companies covered in the analysis. Prior to the split, there were
+        {nrow(unique_companies_pre_split)} unique companies. After the split,
+        there are {nrow(unique_companies_post_split)} unique companies."
+      )
+    )
+  }
+
+  return(data)
 }
