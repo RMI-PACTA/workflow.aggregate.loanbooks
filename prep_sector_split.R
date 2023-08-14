@@ -140,8 +140,10 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
   dplyr::filter(.data$year == .env$start_year) %>%
   dplyr::mutate(
     sector = tolower(.data$sector),
-    sector = dplyr::if_else(
-      .data$sector == "oil&gas", "oil and gas", .data$sector
+    sector = dplyr::case_when(
+      .data$sector == "oil&gas" ~ "oil and gas",
+      .data$sector == "ldv" ~ "automotive",
+      TRUE ~ .data$sector
     ),
     technology = dplyr::case_when(
       .data$sector == "coal" ~ "coal",
