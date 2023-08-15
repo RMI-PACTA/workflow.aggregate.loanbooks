@@ -187,11 +187,7 @@ multi_sector_companies_prep <- advanced_company_indicators %>%
     .by = c("company_id", "n_sectors")
   )
 
-### identify compenies active in more than one sector----
-multi_sector_companies_all <- multi_sector_companies_prep %>%
-  dplyr::filter(.data$n_sectors > 1)
-
-### identify compenies active in more than one energy sector----
+### identify companies active in more than one energy sector----
 multi_sector_companies_energy <- multi_sector_companies_prep %>%
   dplyr::filter(.data$n_energy_sectors > 1) %>%
   dplyr::pull(.data$company_id)
@@ -208,7 +204,7 @@ sector_split_all_companies <- advanced_company_indicators %>%
     .data$year == .env$start_year
   ) %>%
   dplyr::inner_join(
-    multi_sector_companies_all,
+    multi_sector_companies_prep,
     by = "company_id"
   ) %>%
   dplyr::mutate(
@@ -275,7 +271,9 @@ sector_split_energy_companies <- sector_split_energy_companies %>%
   ) %>%
   dplyr::select(
     dplyr::all_of(c("company_id", "name_company", "sector", "production_unit", "production", "sector_split"))
-  )
+  ) %>%
+  dplyr::filter(.data$company_id %in% company_ids_included)
+
 
 check_sector_split_energy_companies <- sector_split_energy_companies %>%
   dplyr::summarise(
@@ -319,7 +317,6 @@ if (any(round(check_sector_split_all_companies_final$sum_share, 3) != 1)) {
 
 ## write output----
 sector_split_energy_companies %>%
-  dplyr::filter(.data$company_id %in% company_ids_included) %>%
   dplyr::select(
     all_of(
       c("company_id", "name_company", "sector", "sector_split")
@@ -328,7 +325,6 @@ sector_split_energy_companies %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split_energy_only.csv"))
 
 sector_split_all_companies %>%
-  dplyr::filter(.data$company_id %in% company_ids_included) %>%
   dplyr::select(
     all_of(
       c("company_id", "name_company", "sector", "sector_split")
@@ -337,7 +333,6 @@ sector_split_all_companies %>%
   readr::write_csv(file.path(input_path_matched, "companies_sector_split_equal_weights_only.csv"))
 
 sector_split_all_companies_final %>%
-  dplyr::filter(.data$company_id %in% company_ids_included) %>%
   dplyr::select(
     all_of(
       c("company_id", "name_company", "sector", "sector_split")
