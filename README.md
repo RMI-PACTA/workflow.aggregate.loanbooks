@@ -110,21 +110,31 @@ Once you have set up the .env file correctly, you can simply run the
   - Scatter plot that allows for peer comparison of alignment metric
     across companies or groups (automotive and power sectors only)
 
-### Optional: Calculate sector splits for multi-sector energy companies
+### Optional: Calculate sector splits for multi-sector companies
 
-You can optionally calculate an activity-based sector split for
-companies that have at least two energy-related main business lines
-withing PACTA scope (at least two of: coal mining, upstream oil & gas,
-power generation). This sector split is meant to help with allocating
-portions of a loan to each of the relevant business lines. As such, it
-allows for considering more than one main sector. This improves
-coverage of transition activities and reflects better the multi-sector focus of
-some companies.
+You can optionally generate a sector split file. This can be used to split the
+loan exposure of a counterparty across the in-scope sectors the company operates
+in. The way the split is calculated can be adjusted and should be informed by
+the particular use case / research question to be answered.
+
+Currently, two basic and one advanced variants of the sector split exist. The
+basic variants are (1) an equal weights split, which allocates the loan equally
+among the sectors a counterparty operates in and (2) a worst case split, which
+allocates the entire loan to the sector that is most misaligned for the given
+counterparty.
+
+An advanced variant calculates an activity-based sector split for companies that
+have at least two energy-related main business lines withing PACTA scope (at
+least two of: coal mining, upstream oil & gas, power generation). This sector
+split is meant to help with allocating portions of a loan to each of the
+relevant business lines. As such, it allows for considering more than one main
+sector. This improves coverage of transition activities and reflects better the
+multi-sector focus of some companies.
 
 To get this sector split, you will need some additional input files:
 
 - a csv containing one column `company_id` that lists the companies you
-  would like to get the sector split for.
+  would like to get the activity-based sector split for.
 - an `advanced_company_indicators` file that includes activity units for
   all three in-scope energy sectors, where the units must be tons of
   coal for coal mining, GJ for upstream oil & gas and MWh for power
