@@ -723,7 +723,7 @@ unique_loanbook_group_id <- loanbook_exposure_aggregated_alignment_bo_po %>%
   unique()
 
 for (i in unique_loanbook_group_id) {
-  dir.create(file.path(output_path_aggregated, i), showWarnings = FALSE)
+  dir.create(file.path(output_path_aggregated, i), recursive = TRUE, showWarnings = FALSE)
 }
 
 for (i in unique_loanbook_group_id) {
