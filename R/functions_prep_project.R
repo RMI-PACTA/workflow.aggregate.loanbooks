@@ -89,14 +89,17 @@ apply_sector_split_to_loans <- function(data,
   return(data)
 }
 
-sample_raw_loanbook_from_abcd <- function(abcd,
+sample_raw_loanbook_from_abcd <- function(abcd = NULL,
                                           sector_shares = NULL,
-                                          n_companies,
-                                          currency,
-                                          total_exposure,
-                                          total_credit_limit) {
-  # TODO: add input checks
-
+                                          n_companies = NULL,
+                                          currency = NULL,
+                                          total_exposure = NULL,
+                                          total_credit_limit = NULL) {
+  # TODO: maybe add seed as argument?
+  if (is.null(abcd)) {
+    abcd <- r2dii.data::abcd_demo
+    message("You did not provide any ABCD to sample from. Using r2dii.data::abcd_demo.")
+  }
   if (is.null(sector_shares)) {
     # styler: off
     # TODO: activate "hdv" and "shipping" once they become available for P4B
@@ -113,8 +116,48 @@ sample_raw_loanbook_from_abcd <- function(abcd,
       "steel",      0.03
     )
     # styler: on
-
+    message(
+      "You did not provide any information on sector shares to be sampled.
+      Using default sector shares."
+    )
   }
+  if (is.null(n_companies)) {
+    n_companies <- 20
+    message(
+      "You did not provide a number of companies for the loan book you would
+      like to sample. Using n_companies = 20 as a default."
+    )
+  }
+  if (is.null(currency)) {
+    currency <- "USD"
+    message(
+      "You did not provide a currency for the loans in the sample laon book.
+      Using USD as a deafult."
+    )
+  }
+  if (is.null(total_exposure)) {
+    total_exposure <- 1000000
+    message(
+      "You did not provide a total_exposure value for the sample loan book.
+      Using 1000000 as a default."
+    )
+  }
+  if (is.null(total_credit_limit)) {
+    total_credit_limit <- 2 * total_exposure
+    message(
+      "You did not provide a total_credit_limit value for the sample loan book.
+      Using 2 * total_exposure as a default."
+    )
+  }
+
+  validate_input_sample_raw_loanbook_from_abcd(
+    abcd = abcd,
+    sector_shares = sector_shares,
+    n_companies = n_companies,
+    currency = currency,
+    total_exposure = total_exposure,
+    total_credit_limit = total_credit_limit
+  )
 
   dist_abcd_sector <- abcd %>%
     dplyr::filter(.data$is_ultimate_owner) %>%
@@ -225,4 +268,80 @@ sample_raw_loanbook_from_abcd <- function(abcd,
     dplyr::select(-dplyr::all_of(c("random_beta", "share_exposure")))
 
   return(loanbook_sample)
+}
+
+validate_input_sample_raw_loanbook_from_abcd <- function(abcd,
+                                                         sector_shares,
+                                                         n_companies,
+                                                         currency,
+                                                         total_exposure,
+                                                         total_credit_limit) {
+  # validate input values
+  validate_input_args_sample_raw_loanbook_from_abcd(
+    n_companies = n_companies,
+    currency = currency,
+    total_exposure = total_exposure,
+    total_credit_limit = total_credit_limit
+  )
+
+  # validate input data set
+  validate_input_data_sample_raw_loanbook_from_abcd(
+    abcd = abcd,
+    sector_shares = sector_shares
+  )
+
+  invisible()
+}
+
+validate_input_args_sample_raw_loanbook_from_abcd <- function(n_companies,
+                                                              currency,
+                                                              total_exposure,
+                                                              total_credit_limit) {
+  if (!length(n_companies) == 1) {
+    stop("Argument n_companies must be of length 1. Please check your input.")
+  }
+  if (!inherits(n_companies, "numeric")) {
+    stop("Argument n_companies must be of class numeric. Please check your input.")
+  }
+  if (!length(currency) == 1) {
+    stop("Argument currency must be of length 1. Please check your input.")
+  }
+  if (!inherits(currency, "character")) {
+    stop("Argument currency must be of class character. Please check your input.")
+  }
+  if (!length(total_exposure) == 1) {
+    stop("Argument total_exposure must be of length 1. Please check your input.")
+  }
+  if (!inherits(total_exposure, "numeric")) {
+    stop("Argument total_exposure must be of class numeric. Please check your input.")
+  }
+  if (!length(total_credit_limit) == 1) {
+    stop("Argument total_credit_limit must be of length 1. Please check your input.")
+  }
+  if (!inherits(total_credit_limit, "numeric")) {
+    stop("Argument total_credit_limit must be of class numeric. Please check your input.")
+  }
+
+  invisible()
+}
+
+validate_input_data_sample_raw_loanbook_from_abcd <- function(abcd,
+                                                              sector_shares) {
+  pacta.aggregate.loanbook.plots::validate_data_has_expected_cols(
+    data = abcd,
+    expected_columns = c(
+      "company_id", "name_company", "lei", "is_ultimate_owner", "sector",
+      "technology", "plant_location", "year", "production", "production_unit",
+      "emission_factor", "emission_factor_unit"#, "ald_timestamp"
+    )
+  )
+
+  pacta.aggregate.loanbook.plots::validate_data_has_expected_cols(
+    data = sector_shares,
+    expected_columns = c(
+      "sector", "share"
+    )
+  )
+
+  invisible()
 }
