@@ -299,7 +299,7 @@ generate_individual_outputs <- function(data,
         )
 
         # plot trajectory charts for all available techs in given sector
-        technologies_in_sector <- r2dii.data::green_or_brown %>%
+        technologies_in_sector <- r2dii.data::increasing_or_decreasing %>%
           dplyr::filter(.data$sector == .env$sector) %>%
           dplyr::pull(.data$technology)
 
