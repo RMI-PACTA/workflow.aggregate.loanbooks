@@ -300,8 +300,8 @@ validate_input_args_sample_raw_loanbook_from_abcd <- function(n_companies,
   if (!length(n_companies) == 1) {
     stop("Argument n_companies must be of length 1. Please check your input.")
   }
-  if (!inherits(n_companies, "numeric")) {
-    stop("Argument n_companies must be of class numeric. Please check your input.")
+  if (!inherits(n_companies, "integer")) {
+    stop("Argument n_companies must be of class integer Please check your input.")
   }
   if (!length(currency) == 1) {
     stop("Argument currency must be of length 1. Please check your input.")
