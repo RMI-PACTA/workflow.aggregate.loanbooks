@@ -146,6 +146,7 @@ for the configuration of the analysis:
 ``` bash
 # parameters for company sector split
 APPLY_SECTOR_SPLIT=FALSE
+SECTOR_SPLIT_TYPE="equal_weights"
 DIR_SPLIT_COMPANY_ID="PATH/TO/SPLIT/FOLDER"
 FILENAME_SPLIT_COMPANY_ID="split_company_ids.csv"
 DIR_ADVANCED_COMPANY_INDICATORS="PATH/TO/ADVANCED_COMP_INDICATORS/FOLDER"
