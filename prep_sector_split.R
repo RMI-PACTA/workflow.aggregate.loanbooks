@@ -44,6 +44,7 @@ library(tidyverse)
 library(vroom)
 
 dotenv::load_dot_env()
+source("R/functions_prep_project.R")
 
 # get sector split for energy companies----
 
@@ -137,7 +138,7 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
     values_ptypes = list("value" = numeric())
   ) %>%
   dplyr::mutate(year = as.numeric(.data$year)) %>%
-  dplyr::filter(.data$year == .env$start_year) %>%
+  dplyr::filter(dplyr::between(.data$year, .env$start_year, .env$start_year + .env$time_frame_select)) %>%
   dplyr::mutate(
     sector = tolower(.data$sector),
     sector = dplyr::case_when(
@@ -166,7 +167,11 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
     production = "value",
     production_unit = "activity_unit"
   ) %>%
-  dplyr::filter(production > 0)
+  rm_inactive_companies(
+    start_year = start_year,
+    time_frame_select = time_frame_select
+  ) %>%
+  dplyr::filter(.data$year == .env$start_year)
 
 ### count number of sectors and energy sectors per company----
 multi_sector_companies_prep <- advanced_company_indicators %>%
