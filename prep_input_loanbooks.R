@@ -28,6 +28,8 @@ if (file.exists(here::here(".env"))) {
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
 
   output_path <- Sys.getenv("DIR_OUTPUT")
+
+  match_level <- Sys.getenv("PREP_INPUT_LEVEL")
 } else {
   stop("Please set up a configuration file at the root of the repository, as
        explained in the README.md")
@@ -136,7 +138,8 @@ for (i in unique_matched_loanbook_checked) {
     dplyr::filter(.data$group_id == i)
 
   matched_prioritized_i <- matched_loanbook_checked_i %>%
-    prioritize()
+    prioritize() %>%
+    dplyr::filter(.data$level == .env$match_level)
 
   matched_prioritized <- matched_prioritized %>%
     dplyr::bind_rows(matched_prioritized_i)
