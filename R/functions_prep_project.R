@@ -173,6 +173,22 @@ sample_raw_loanbook_from_abcd <- function(abcd = NULL,
     dplyr::mutate(n = round(.env$n_companies * .data$share, 0)) %>%
     dplyr::select(-"share")
 
+  # if the sum of n_companies_sector$n is not equal to the value n_companies,
+  # calculate the remainder and adjust the sector with the alrgest sample by that remainder
+  if (
+    sum(n_companies_sector$n, na.rm = TRUE) != n_companies
+  ) {
+    remainder <- n_companies - sum(n_companies_sector$n, na.rm = TRUE)
+
+    max_sector <- n_companies_sector %>%
+      dplyr::slice_max(order_by = .data$n, n = 1) %>%
+      dplyr::mutate(n = .data$n + remainder)
+
+    n_companies_sector <- n_companies_sector %>%
+      dplyr::filter(.data$sector != max_sector$sector) %>%
+      dplyr::bind_rows(max_sector)
+  }
+
   sectors_to_sample <- sector_shares %>%
     dplyr::filter(.data$share > 0) %>%
     dplyr::distinct(.data$sector) %>%
