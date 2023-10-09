@@ -169,7 +169,7 @@ sample_raw_loanbook_from_abcd <- function(abcd = NULL,
 
   # TODO: dist_abcd_multi_sector
 
-  n_copanies_sector <- sector_shares %>%
+  n_companies_sector <- sector_shares %>%
     dplyr::mutate(n = round(.env$n_companies * .data$share, 0)) %>%
     dplyr::select(-"share")
 
@@ -181,14 +181,14 @@ sample_raw_loanbook_from_abcd <- function(abcd = NULL,
   sample_sectors <- NULL
 
   for (i in sectors_to_sample) {
-    n_copanies_sector_i <- n_copanies_sector %>%
+    n_companies_sector_i <- n_companies_sector %>%
       dplyr::filter(.data$sector == i) %>%
       dplyr::distinct(.data$n) %>%
       dplyr::pull()
 
     sample_sector_i <- dist_abcd_sector %>%
       dplyr::filter(.data$sector == i) %>%
-      dplyr::slice_sample(n = n_copanies_sector_i)
+      dplyr::slice_sample(n = n_companies_sector_i)
 
     sample_sectors <- sample_sectors %>%
       dplyr::bind_rows(sample_sector_i)
