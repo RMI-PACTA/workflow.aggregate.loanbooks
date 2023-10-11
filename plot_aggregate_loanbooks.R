@@ -53,52 +53,17 @@ if (file.exists(here::here(".env"))) {
 
 ## asset based company data----
 abcd <- readr::read_csv(
-  file.path(input_path_abcd),
+  file.path(input_dir_abcd, "abcd_final_for_plots.csv"),
   col_types = col_types_abcd,
   col_select = dplyr::all_of(col_select_abcd)
 )
-# replace potential NA values with 0 in production
-abcd["production"][is.na(abcd["production"])] <- 0
-
-# optional: remove company-sector combinations where production in t5 = 0 when
-# it was greater than 0 in t0.
-if (remove_inactive_companies) {
-  abcd <- abcd %>%
-    rm_inactive_companies(
-      start_year = start_year,
-      time_frame_select = time_frame_select
-    )
-}
 
 ## matched loanbook data----
 matched_prioritized <- readr::read_csv(
-  file.path(input_path_matched, "matched_prio_all_groups.csv"),
+  file.path(input_path_matched, "matched_prioritized_final_for_plots.csv"),
   col_types = col_types_matched_prio_all_groups,
   col_select = dplyr::all_of(col_select_matched_prio_all_groups)
 )
-
-if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst_case")) {
-  if (sector_split_type_select == "equal_weights") {
-    companies_sector_split <- readr::read_csv(
-      file.path(input_path_matched, "companies_sector_split.csv"),
-      col_types = col_types_companies_sector_split,
-      col_select = dplyr::all_of(col_select_companies_sector_split)
-    )
-  } else {
-    companies_sector_split <- readr::read_csv(
-      file.path(input_path_matched, "companies_sector_split_worst_case.csv"),
-      col_types = col_types_companies_sector_split_worst_case,
-      col_select = dplyr::all_of(col_select_companies_sector_split_worst_case)
-    )
-  }
-
-  matched_prioritized <- matched_prioritized %>%
-    apply_sector_split_to_loans(
-      abcd = abcd,
-      companies_sector_split = companies_sector_split,
-      sector_split_type = sector_split_type_select
-    )
-}
 
 ## company level results----
 company_aggregated_alignment_net_tms  <-

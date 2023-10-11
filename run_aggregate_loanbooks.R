@@ -116,6 +116,10 @@ if (remove_inactive_companies) {
     )
 }
 
+# write final version of abcd to file for use in plot_aggregate_loanbooks.R
+abcd %>%
+  readr::write_csv(file.path(input_dir_abcd, "abcd_final_for_plots.csv"))
+
 # add loan book with corporate economy benchmark----
 # benchmark_region can be selected based on r2dii.data::region_isos
 matched_benchmark <- NULL
@@ -168,6 +172,10 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
       sector_split_type = sector_split_type_select
     )
 }
+
+# write final version of matched_prioritized to file for use in plot_aggregate_loanbooks.R
+matched_prioritized %>%
+  readr::write_csv(file.path(input_path_matched, "matched_prioritized_final_for_plots.csv"))
 
 # aggregate P4B alignment----
 
