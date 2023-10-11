@@ -297,83 +297,83 @@ if (
 }
 
 ### animated scatter plot for group level comparison----
-region_scatter <- region_select
-data_level_group <- "bank"
-# automotive
-sector_scatter <- "automotive"
-if (
-  nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
-  nrow(loanbook_exposure_aggregated_alignment_net) > 0
-) {
-  data_scatter_automotive_group_a <- prep_scatter_animated(
-    loanbook_exposure_aggregated_alignment_bo_po,
-    loanbook_exposure_aggregated_alignment_net,
-    sector = sector_scatter,
-    region = region_scatter,
-    data_level = data_level_group
-  )
-
-  data_scatter_automotive_group_a %>%
-    readr::write_csv(
-      file = file.path(
-        output_path_aggregated,
-        "data_scatter_automotive_group_animated.csv"
-      )
-    )
-
-  plot_scatter_automotive_group_a <- plot_scatter_animated(
-    data_scatter_automotive_group_a,
-    sector = sector_scatter,
-    data_level = data_level_group,
-    region = region_scatter,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    alignment_limit = 1
-  )
-
-  htmlwidgets::saveWidget(
-    plot_scatter_automotive_group_a,
-    file = file.path(output_path_aggregated, "plot_scatter_automotive_group_animated.html")
-  )
-}
-
-# power
-sector_scatter <- "power"
-if (
-  nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
-  nrow(loanbook_exposure_aggregated_alignment_net) > 0
-) {
-  data_scatter_power_group_a <- prep_scatter_animated(
-    loanbook_exposure_aggregated_alignment_bo_po,
-    loanbook_exposure_aggregated_alignment_net,
-    sector = sector_scatter,
-    region = region_scatter,
-    data_level = data_level_group
-  )
-
-  data_scatter_power_group_a %>%
-    readr::write_csv(
-      file = file.path(
-        output_path_aggregated,
-        "data_scatter_power_group_animated.csv"
-      )
-    )
-
-  plot_scatter_power_group_a <- plot_scatter_animated(
-    data_scatter_power_group_a,
-    sector = sector_scatter,
-    data_level = data_level_group,
-    region = region_scatter,
-    scenario_source = scenario_source_input,
-    scenario = scenario_select,
-    alignment_limit = 1
-  )
-
-  htmlwidgets::saveWidget(
-    plot_scatter_power_group_a,
-    file = file.path(output_path_aggregated, "plot_scatter_power_group_animated.html")
-  )
-}
+# region_scatter <- region_select
+# data_level_group <- "bank"
+# # automotive
+# sector_scatter <- "automotive"
+# if (
+#   nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
+#   nrow(loanbook_exposure_aggregated_alignment_net) > 0
+# ) {
+#   data_scatter_automotive_group_a <- prep_scatter_animated(
+#     loanbook_exposure_aggregated_alignment_bo_po,
+#     loanbook_exposure_aggregated_alignment_net,
+#     sector = sector_scatter,
+#     region = region_scatter,
+#     data_level = data_level_group
+#   )
+#
+#   data_scatter_automotive_group_a %>%
+#     readr::write_csv(
+#       file = file.path(
+#         output_path_aggregated,
+#         "data_scatter_automotive_group_animated.csv"
+#       )
+#     )
+#
+#   plot_scatter_automotive_group_a <- plot_scatter_animated(
+#     data_scatter_automotive_group_a,
+#     sector = sector_scatter,
+#     data_level = data_level_group,
+#     region = region_scatter,
+#     scenario_source = scenario_source_input,
+#     scenario = scenario_select,
+#     alignment_limit = 1
+#   )
+#
+#   htmlwidgets::saveWidget(
+#     plot_scatter_automotive_group_a,
+#     file = file.path(output_path_aggregated, "plot_scatter_automotive_group_animated.html")
+#   )
+# }
+#
+# # power
+# sector_scatter <- "power"
+# if (
+#   nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
+#   nrow(loanbook_exposure_aggregated_alignment_net) > 0
+# ) {
+#   data_scatter_power_group_a <- prep_scatter_animated(
+#     loanbook_exposure_aggregated_alignment_bo_po,
+#     loanbook_exposure_aggregated_alignment_net,
+#     sector = sector_scatter,
+#     region = region_scatter,
+#     data_level = data_level_group
+#   )
+#
+#   data_scatter_power_group_a %>%
+#     readr::write_csv(
+#       file = file.path(
+#         output_path_aggregated,
+#         "data_scatter_power_group_animated.csv"
+#       )
+#     )
+#
+#   plot_scatter_power_group_a <- plot_scatter_animated(
+#     data_scatter_power_group_a,
+#     sector = sector_scatter,
+#     data_level = data_level_group,
+#     region = region_scatter,
+#     scenario_source = scenario_source_input,
+#     scenario = scenario_select,
+#     alignment_limit = 1
+#   )
+#
+#   htmlwidgets::saveWidget(
+#     plot_scatter_power_group_a,
+#     file = file.path(output_path_aggregated, "plot_scatter_power_group_animated.html")
+#   )
+# }
 
 # group level plots ----
 ### timeline plot: evolution of portfolio-weighted alignment over time----
@@ -930,104 +930,104 @@ for (i in unique_loanbook_group_id) {
 
 # for all companies per group, not all companies across groups
 
-# automotive
-sector_scatter <- "automotive"
-
-unique_loanbook_group_id <- company_aggregated_alignment_bo_po_tms %>%
-  dplyr::filter(
-    .data$sector == .env$sector_scatter,
-    !grepl("benchmark_corporate_economy_", .data$group_id)
-  ) %>%
-  dplyr::pull(.data$group_id) %>%
-  unique()
-
-for (i in unique_loanbook_group_id) {
-  data_scatter_automotive_company_animated_i <- prep_scatter_animated(
-    company_aggregated_alignment_bo_po_tms,
-    company_aggregated_alignment_net_tms,
-    sector = sector_scatter,
-    region = region_scatter,
-    data_level = data_level_company,
-    group_ids_to_plot = i
-  )
-
-  if (nrow(data_scatter_automotive_company_animated_i) > 0) {
-    data_scatter_automotive_company_animated_i %>%
-      readr::write_csv(
-        file = file.path(
-          output_path_aggregated,
-          i,
-          "data_scatter_automotive_company_animated.csv"
-        )
-      )
-
-    plot_scatter_animated_i <- plot_scatter_animated(
-      data_scatter_automotive_company_animated_i,
-      sector = sector_scatter,
-      data_level = data_level_company,
-      region = region_scatter,
-      scenario_source = scenario_source_input,
-      scenario = scenario_select,
-      floor_outliers = -1.5,
-      cap_outliers = 1.5
-    )
-
-    htmlwidgets::saveWidget(
-      plot_scatter_animated_i,
-      file = file.path(output_path_aggregated, i, "plot_scatter_automotive_company_animated.html")
-    )
-  } else {
-    next()
-  }
-}
-
-# power
-sector_scatter <- "power"
-
-unique_loanbook_group_id <- company_aggregated_alignment_bo_po_tms %>%
-  dplyr::filter(
-    .data$sector == .env$sector_scatter,
-    !grepl("benchmark_corporate_economy_", .data$group_id)
-  ) %>%
-  dplyr::pull(.data$group_id) %>%
-  unique()
-
-for (i in unique_loanbook_group_id) {
-  data_scatter_power_company_animated_i <- prep_scatter_animated(
-    company_aggregated_alignment_bo_po_tms,
-    company_aggregated_alignment_net_tms,
-    sector = sector_scatter,
-    region = region_scatter,
-    data_level = data_level_company,
-    group_ids_to_plot = i
-  )
-
-  if (nrow(data_scatter_power_company_animated_i) > 0) {
-    data_scatter_power_company_animated_i %>%
-      readr::write_csv(
-        file = file.path(
-          output_path_aggregated,
-          i,
-          "data_scatter_power_company_animated.csv"
-        )
-      )
-
-    plot_scatter_animated_i <- plot_scatter_animated(
-      data_scatter_power_company_animated_i,
-      sector = sector_scatter,
-      data_level = data_level_company,
-      region = region_scatter,
-      scenario_source = scenario_source_input,
-      scenario = scenario_select,
-      floor_outliers = -1.5,
-      cap_outliers = 1.5
-    )
-
-    htmlwidgets::saveWidget(
-      plot_scatter_animated_i,
-      file = file.path(output_path_aggregated, i, "plot_scatter_power_company_animated.html")
-    )
-  } else {
-    next()
-  }
-}
+# # automotive
+# sector_scatter <- "automotive"
+#
+# unique_loanbook_group_id <- company_aggregated_alignment_bo_po_tms %>%
+#   dplyr::filter(
+#     .data$sector == .env$sector_scatter,
+#     !grepl("benchmark_corporate_economy_", .data$group_id)
+#   ) %>%
+#   dplyr::pull(.data$group_id) %>%
+#   unique()
+#
+# for (i in unique_loanbook_group_id) {
+#   data_scatter_automotive_company_animated_i <- prep_scatter_animated(
+#     company_aggregated_alignment_bo_po_tms,
+#     company_aggregated_alignment_net_tms,
+#     sector = sector_scatter,
+#     region = region_scatter,
+#     data_level = data_level_company,
+#     group_ids_to_plot = i
+#   )
+#
+#   if (nrow(data_scatter_automotive_company_animated_i) > 0) {
+#     data_scatter_automotive_company_animated_i %>%
+#       readr::write_csv(
+#         file = file.path(
+#           output_path_aggregated,
+#           i,
+#           "data_scatter_automotive_company_animated.csv"
+#         )
+#       )
+#
+#     plot_scatter_animated_i <- plot_scatter_animated(
+#       data_scatter_automotive_company_animated_i,
+#       sector = sector_scatter,
+#       data_level = data_level_company,
+#       region = region_scatter,
+#       scenario_source = scenario_source_input,
+#       scenario = scenario_select,
+#       floor_outliers = -1.5,
+#       cap_outliers = 1.5
+#     )
+#
+#     htmlwidgets::saveWidget(
+#       plot_scatter_animated_i,
+#       file = file.path(output_path_aggregated, i, "plot_scatter_automotive_company_animated.html")
+#     )
+#   } else {
+#     next()
+#   }
+# }
+#
+# # power
+# sector_scatter <- "power"
+#
+# unique_loanbook_group_id <- company_aggregated_alignment_bo_po_tms %>%
+#   dplyr::filter(
+#     .data$sector == .env$sector_scatter,
+#     !grepl("benchmark_corporate_economy_", .data$group_id)
+#   ) %>%
+#   dplyr::pull(.data$group_id) %>%
+#   unique()
+#
+# for (i in unique_loanbook_group_id) {
+#   data_scatter_power_company_animated_i <- prep_scatter_animated(
+#     company_aggregated_alignment_bo_po_tms,
+#     company_aggregated_alignment_net_tms,
+#     sector = sector_scatter,
+#     region = region_scatter,
+#     data_level = data_level_company,
+#     group_ids_to_plot = i
+#   )
+#
+#   if (nrow(data_scatter_power_company_animated_i) > 0) {
+#     data_scatter_power_company_animated_i %>%
+#       readr::write_csv(
+#         file = file.path(
+#           output_path_aggregated,
+#           i,
+#           "data_scatter_power_company_animated.csv"
+#         )
+#       )
+#
+#     plot_scatter_animated_i <- plot_scatter_animated(
+#       data_scatter_power_company_animated_i,
+#       sector = sector_scatter,
+#       data_level = data_level_company,
+#       region = region_scatter,
+#       scenario_source = scenario_source_input,
+#       scenario = scenario_select,
+#       floor_outliers = -1.5,
+#       cap_outliers = 1.5
+#     )
+#
+#     htmlwidgets::saveWidget(
+#       plot_scatter_animated_i,
+#       file = file.path(output_path_aggregated, i, "plot_scatter_power_company_animated.html")
+#     )
+#   } else {
+#     next()
+#   }
+# }
