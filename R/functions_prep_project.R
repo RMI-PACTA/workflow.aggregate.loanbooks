@@ -6,7 +6,7 @@ rm_inactive_companies <- function(data,
       year %in% c(.env$start_year, .env$start_year + .env$time_frame_select)
     ) %>%
     dplyr::summarise(
-      sum_production = sum(production, na.rm = TRUE),
+      sum_production = sum(.data$production, na.rm = TRUE),
       .by =c("name_company", "sector", "year")
     ) %>%
     tidyr::pivot_wider(
@@ -27,7 +27,7 @@ rm_inactive_companies <- function(data,
       year %in% c(.env$start_year, .env$start_year + .env$time_frame_select)
     ) %>%
     dplyr::summarise(
-      sum_production = sum(production, na.rm = TRUE),
+      sum_production = sum(.data$production, na.rm = TRUE),
       .by =c("name_company", "sector")
     ) %>%
     dplyr::filter(
