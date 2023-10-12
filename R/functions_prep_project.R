@@ -22,9 +22,28 @@ rm_inactive_companies <- function(data,
   comp_sec_no_prod_t5 <- data_no_prod_t5 %>%
     dplyr::distinct(.data$name_company, .data$sector)
 
+  data_no_prod_t0_to_t5 <- data %>%
+    dplyr::filter(
+      year %in% c(.env$start_year, .env$start_year + .env$time_frame_select)
+    ) %>%
+    dplyr::summarise(
+      sum_production = sum(production, na.rm = TRUE),
+      .by =c("name_company", "sector")
+    ) %>%
+    dplyr::filter(
+      .data$sum_production == 0
+    )
+
+  comp_sec_no_prod_t0_to_t5 <- data_no_prod_t0_to_t5 %>%
+    dplyr::distinct(.data$name_company, .data$sector)
+
   data <- data %>%
     dplyr::anti_join(
       comp_sec_no_prod_t5,
+      by = c("name_company", "sector")
+    ) %>%
+    dplyr::anti_join(
+      comp_sec_no_prod_t0_to_t5,
       by = c("name_company", "sector")
     )
 
