@@ -171,7 +171,6 @@ advanced_company_indicators <- advanced_company_indicators_raw %>%
     start_year = start_year,
     time_frame_select = time_frame_select
   ) %>%
-  # TODO: remove companies/sector combinations that are 0 throughout the time frame in question
   dplyr::filter(.data$year == .env$start_year)
 
 ### count number of sectors and energy sectors per company----
