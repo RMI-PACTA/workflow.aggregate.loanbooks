@@ -109,11 +109,20 @@ abcd["production"][is.na(abcd["production"])] <- 0
 # optional: remove company-sector combinations where production in t5 = 0 when
 # it was greater than 0 in t0.
 if (remove_inactive_companies) {
-  abcd <- abcd %>%
+  abcd_keep <- abcd %>%
     rm_inactive_companies(
       start_year = start_year,
       time_frame_select = time_frame_select
     )
+
+  abcd_removed <- abcd %>%
+    dplyr::anti_join(abcd_keep, by = c("company_id", "sector"))
+
+  # write removed inactive companies to file for inspection
+  abcd_removed %>%
+    readr::write_csv(file.path(input_dir_abcd, "abcd_removed_inactive_companies.csv"))
+
+  abcd <- abcd_keep
 }
 
 # read matched and prioritized loan book----
@@ -144,7 +153,8 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
     apply_sector_split_to_loans(
       abcd = abcd,
       companies_sector_split = companies_sector_split,
-      sector_split_type = sector_split_type_select
+      sector_split_type = sector_split_type_select,
+      input_path_matched = input_path_matched
     )
 }
 
