@@ -87,7 +87,8 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
     apply_sector_split_to_loans(
       abcd = abcd,
       companies_sector_split = companies_sector_split,
-      sector_split_type = sector_split_type_select
+      sector_split_type = sector_split_type_select,
+      input_path_matched = input_path_matched
     )
 }
 

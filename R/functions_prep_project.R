@@ -34,13 +34,26 @@ rm_inactive_companies <- function(data,
 apply_sector_split_to_loans <- function(data,
                                         abcd,
                                         companies_sector_split,
-                                        sector_split_type) {
+                                        sector_split_type,
+                                        input_path_matched) {
   unique_companies_pre_split <- data %>%
     distinct(name_abcd)
 
   if (sector_split_type == "equal_weights") {
     abcd_id <- abcd %>%
       dplyr::distinct(.data$company_id, .data$name_company)
+
+    # identify lost_companies_sector_split and write to csv for inspection
+    lost_companies_sector_split <- companies_sector_split %>%
+      dplyr::anti_join(
+        abcd_id,
+        by = c("company_id")
+      )
+
+    lost_companies_sector_split %>%
+      readr::write_csv(
+        path = file.path(input_path_matched, "lost_companies_sector_split.csv")
+      )
 
     companies_sector_split <- companies_sector_split %>%
       dplyr::left_join(
