@@ -58,26 +58,8 @@ if (file.exists(here::here(".env"))) {
 
 # TODO: add check if all files exist, resort to test files if not
 
-# TODO: remove the temp section once r2dii.data is updated
-############# TEMP #############
-# r2dii.data is not updated yet, so we manually update the region_isos data to
-# cover the 2022 scenarios
-regions_geco_2022 <- readr::read_csv(
-  input_path_regions_geco_2022,
-  col_types = col_types_region_isos,
-  col_select = dplyr::all_of(col_select_region_isos)
-)
-regions_weo_2022 <- readr::read_csv(
-  input_path_regions_weo_2022,
-  col_types = col_types_region_isos,
-  col_select = dplyr::all_of(col_select_region_isos)
-)
-
-region_isos_complete <- r2dii.data::region_isos %>%
-  rbind(regions_geco_2022) %>%
-  rbind(regions_weo_2022)
-################################
-# region_isos_complete <- r2dii.data::region_isos
+# load input data----
+region_isos_complete <- r2dii.data::region_isos
 
 region_isos_select <- region_isos_complete %>%
   dplyr::filter(
@@ -85,7 +67,6 @@ region_isos_select <- region_isos_complete %>%
     .data$region %in% .env$region_select
   )
 
-# load input data----
 scenario_input_tms <- readr::read_csv(
   input_path_scenario_tms,
   col_types = col_types_scenario_tms,
