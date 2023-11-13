@@ -10,8 +10,6 @@ if (file.exists(here::here(".env"))) {
   input_path_scenario <- Sys.getenv("DIR_SCENARIO")
   input_dir_abcd <- Sys.getenv("DIR_ABCD")
 
-  input_path_regions_geco_2022 <- file.path(input_path_scenario, Sys.getenv("FILENAME_REGIONS_GECO_2022"))
-  input_path_regions_weo_2022 <- file.path(input_path_scenario, Sys.getenv("FILENAME_REGIONS_WEO_2022"))
   input_path_scenario_tms <- file.path(input_path_scenario, Sys.getenv("FILENAME_SCENARIO_TMS"))
   input_path_scenario_sda <- file.path(input_path_scenario, Sys.getenv("FILENAME_SCENARIO_SDA"))
   input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
@@ -36,20 +34,7 @@ abcd <- readr::read_csv(
 abcd["production"][is.na(abcd["production"])] <- 0
 
 ## get region and countries for analysis----
-regions_geco_2022 <- readr::read_csv(
-  input_path_regions_geco_2022,
-  col_types = col_types_region_isos,
-  col_select = dplyr::all_of(col_select_region_isos)
-)
-regions_weo_2022 <- readr::read_csv(
-  input_path_regions_weo_2022,
-  col_types = col_types_region_isos,
-  col_select = dplyr::all_of(col_select_region_isos)
-)
-
-region_isos_complete <- r2dii.data::region_isos %>%
-  rbind(regions_geco_2022) %>%
-  rbind(regions_weo_2022)
+region_isos_complete <- r2dii.data::region_isos
 
 region_isos_select <- region_isos_complete %>%
   dplyr::filter(

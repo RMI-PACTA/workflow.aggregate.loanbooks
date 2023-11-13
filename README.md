@@ -45,8 +45,6 @@ DIR_OUTPUT="PATH/TO/OUTPUT/FOLDER"
 # input file names
 FILENAME_SCENARIO_TMS="scenario_tms.csv"
 FILENAME_SCENARIO_SDA="scenario_sda.csv"
-FILENAME_REGIONS_GECO_2022="region_geco2022.csv"
-FILENAME_REGIONS_WEO_2022="region_weo2022.csv"
 FILENAME_ABCD="abcd_data.csv"
 
 # project parameters

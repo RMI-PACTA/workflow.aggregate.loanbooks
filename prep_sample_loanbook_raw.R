@@ -40,8 +40,8 @@ abcd <- readr::read_csv(
 abcd["production"][is.na(abcd["production"])] <- 0
 
 # Optional: sample only companies which have some production in a selected region_sample
-region_companies_source <- "weo_2021"
-region_companies <- "europe"
+region_companies_source <- "geco_2022"
+region_companies <- "canada"
 region_sample <- r2dii.data::region_isos %>%
   dplyr::filter(
     .data$source == .env$region_companies_source,
