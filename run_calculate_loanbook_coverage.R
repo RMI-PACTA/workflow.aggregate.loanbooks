@@ -24,10 +24,13 @@ if (file.exists(here::here(".env"))) {
 
   # project parameters
   scenario_source_input <- Sys.getenv("PARAM_SCENARIO_SOURCE")
-  start_year_select <- Sys.getenv("PARAM_START_YEAR")
+  start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
+  time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
   if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
+  remove_inactive_companies <- as.logical(Sys.getenv("REMOVE_INACTIVE_COMPANIES"))
+  if (is.na(remove_inactive_companies)) {remove_inactive_companies <- FALSE}
 
   # if a sector split is applied, write results into a directory that states the type
   if (apply_sector_split) {
@@ -73,7 +76,7 @@ if (remove_inactive_companies) {
 
 # filter to start year as we calculate coverage in start year
 abcd <- abcd %>%
-  dplyr::filter(.data$year == .env$start_year_select)
+  dplyr::filter(.data$year == .env$start_year)
 
 
 # coverage of production by companies in loan books compared to total production----
