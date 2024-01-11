@@ -14,6 +14,7 @@ library(vroom)
 dotenv::load_dot_env()
 source("expected_columns.R")
 source("R/functions_prep_project.R")
+source("R/plots.R")
 
 # set up project----
 if (file.exists(here::here(".env"))) {
@@ -173,6 +174,47 @@ if (!is.null(data_sankey_company_sector)) {
     data_sankey_company_sector,
     save_png_to = output_path_aggregated,
     png_name = "plot_sankey_company_sector.png"
+  )
+}
+
+### scatter plot alignment by exposure and sector comparison----
+year_scatter_alignment_exposure <- 2027
+region_scatter_alignment_exposure <- region_select
+# TODO: this should come from the loan book
+currency <- "EUR"
+category <- "group_id"
+
+if (
+  nrow(loanbook_exposure_aggregated_alignment_net) > 0
+) {
+  data_scatter_alignment_exposure <- loanbook_exposure_aggregated_alignment_net %>%
+    prep_scatter_alignment_exposure(
+      year = year_scatter_alignment_exposure,
+      region = region_scatter_alignment_exposure,
+      scenario = scenario_select
+    )
+
+  data_scatter_alignment_exposure %>%
+    readr::write_csv(
+      file = file.path(
+        output_path_aggregated,
+        "data_scatter_alignment_exposure.csv"
+      )
+    )
+
+  plot_scatter_alignment_exposure <- data_scatter_alignment_exposure %>%
+    plot_scatter_alignment_exposure(
+      floor_outliers = -1,
+      cap_outliers = 1,
+      category = category,
+      currency = currency
+    )
+
+  ggplot2::ggsave(
+    filename = "plot_scatter_alignment_exposure.png",
+    path = output_path_aggregated,
+    width = 8,
+    height = 5
   )
 }
 
