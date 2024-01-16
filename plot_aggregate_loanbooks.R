@@ -181,7 +181,7 @@ if (!is.null(data_sankey_company_sector)) {
 year_scatter_alignment_exposure <- 2027
 region_scatter_alignment_exposure <- region_select
 # TODO: this should come from the loan book
-currency <- "EUR"
+currency <- unique(matched_prioritized$loan_size_outstanding_currency)
 category <- "group_id"
 
 if (
@@ -214,7 +214,9 @@ if (
     filename = "plot_scatter_alignment_exposure.png",
     path = output_path_aggregated,
     width = 8,
-    height = 5
+    height = 5,
+    dpi = 300,
+    units = "in",
   )
 }
 

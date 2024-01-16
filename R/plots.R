@@ -56,12 +56,12 @@ plot_scatter_alignment_exposure <- function(data,
   }
 
   title <- glue::glue("Net Aggregate Alignment By Financial Exposure And Sector")
-  subtitle <- glue::glue("Groups Displayed: Bank Types")
+  subtitle <- ""
   # TODO: this should be variable and any categorical variable should be able to be used
   # subtitle = glue::glue("Groups Displayed: {tools::toTitleCase(sector)}")
   if (any(!is.null(floor_outliers), !is.null(cap_outliers))) {
     subtitle <- glue::glue(
-      "{subtitle}\nThe outliers are displayed on the borders of the plot.",
+      "{subtitle}Outliers are displayed on the lower and upper boundaries: {floor_outliers} and {cap_outliers}.",
       .trim = FALSE
     )
   }
@@ -72,11 +72,13 @@ plot_scatter_alignment_exposure <- function(data,
       ggplot2::aes(
         x = sum_loan_size_outstanding,
         y = exposure_weighted_net_alignment,
-        # TODO: this should be variable and any categorical variable should be able to be used
         color = !!rlang::sym(category)
       )
     ) +
     ggplot2::geom_point() +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::ylim(-1, 1) +
+    ggplot2::scale_x_continuous(labels = scales::comma) +
     ggplot2::facet_wrap(
       ~ sector
     ) +
@@ -87,12 +89,15 @@ plot_scatter_alignment_exposure <- function(data,
       # subtitle = glue::glue("Groups Displayed: {tools::toTitleCase(sector)}"),
       color = r2dii.plot::to_title(category)
     ) +
-    ggplot2::xlab(glue::glue("Financial Exposure (in {currency})")) +
+    # TODO: this label must be generalized
+    ggplot2::xlab(glue::glue("Financial Exposure (in 1000 {currency})")) +
     ggplot2::ylab("Net Aggregate Alignment") +
     r2dii.plot::scale_colour_r2dii() +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)
+      axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1),
+      panel.grid = ggplot2::element_blank()
+      # panel.grid.minor = ggplot2::element_blank()
     )
 
   plot
