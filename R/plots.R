@@ -95,7 +95,6 @@ plot_scatter_alignment_exposure <- function(data,
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1),
       panel.grid = ggplot2::element_blank()
-      # panel.grid.minor = ggplot2::element_blank()
     )
 
   plot
