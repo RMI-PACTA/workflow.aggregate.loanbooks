@@ -60,8 +60,6 @@ plot_scatter_alignment_exposure <- function(data,
 
   title <- glue::glue("Net Aggregate Alignment By Financial Exposure And Sector")
   subtitle <- ""
-  # TODO: this should be variable and any categorical variable should be able to be used
-  # subtitle = glue::glue("Groups Displayed: {tools::toTitleCase(sector)}")
   if (any(!is.null(floor_outliers), !is.null(cap_outliers))) {
     subtitle <- glue::glue(
       "{subtitle}Outliers are displayed on the lower and upper boundaries: {floor_outliers} and {cap_outliers}.",
@@ -88,8 +86,6 @@ plot_scatter_alignment_exposure <- function(data,
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
-      # TODO: this should be variable and any categorical variable should be able to be used
-      # subtitle = glue::glue("Groups Displayed: {tools::toTitleCase(sector)}"),
       color = r2dii.plot::to_title(category)
     ) +
     # TODO: this label must be generalized
