@@ -191,7 +191,9 @@ if (
     prep_scatter_alignment_exposure(
       year = year_scatter_alignment_exposure,
       region = region_scatter_alignment_exposure,
-      scenario = scenario_select
+      scenario = scenario_select,
+      category = category,
+      exclude_group_ids = "benchmark"
     )
 
   data_scatter_alignment_exposure %>%

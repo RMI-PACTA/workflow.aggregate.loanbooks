@@ -1,9 +1,13 @@
 prep_scatter_alignment_exposure <- function(data,
                                             year,
                                             region,
-                                            scenario) {
+                                            scenario,
+                                            category,
+                                            exclude_group_ids = "benchmark") {
   data <- data %>%
-    dplyr::filter(!grepl("benchmark_", .data$group_id)) %>%
+    dplyr::filter(
+      !grepl(paste0(.env$exclude_group_ids, collapse = "|"), .data$group_id)
+    ) %>%
     dplyr::filter(
       .data$year == .env$year,
       .data$region == .env$region,
@@ -13,7 +17,6 @@ prep_scatter_alignment_exposure <- function(data,
       dplyr::all_of(
         c(
           .env$category,
-          # "group_id",
           "scenario",
           "region",
           "sector",
