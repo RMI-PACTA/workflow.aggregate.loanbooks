@@ -88,8 +88,7 @@ plot_scatter_alignment_exposure <- function(data,
       subtitle = subtitle,
       color = r2dii.plot::to_title(category)
     ) +
-    # TODO: this label must be generalized
-    ggplot2::xlab(glue::glue("Financial Exposure (in 1000 {currency})")) +
+    ggplot2::xlab(glue::glue("Financial Exposure (in {currency})")) +
     ggplot2::ylab("Net Aggregate Alignment") +
     r2dii.plot::scale_colour_r2dii() +
     ggplot2::theme_bw() +
