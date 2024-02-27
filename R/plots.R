@@ -210,7 +210,7 @@ generate_individual_outputs <- function(data,
     } else if (sector == "steel") {
       y_lab_emissions_intensity <- "Tons of CO2 per Ton of Steel Produced"
     } else if (sector == "aviation") {
-      y_lab_emissions_intensity <- "Tons of CO2 per Passenger Kilometer"
+      y_lab_emissions_intensity <- "Grams of CO2 per Passenger Kilometer"
     } else {
       y_lab_emissions_intensity <- "Emission Factor Value"
     }
