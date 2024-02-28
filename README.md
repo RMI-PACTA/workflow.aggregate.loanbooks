@@ -72,37 +72,50 @@ save as `.env` at the root level of the repository.
 
 ## Running the Analysis
 
-Once you have set up the .env file correctly, you can simply run the
-`run_aggregate_loanbooks.R` entirely to:
+Once you have set up the .env file correctly, there are a number of top level
+scripts to run the full analysis.
+
+### Matching loan books
+
+To check the progress of the matching process, you can run the `run_match_success_rate.R` script. This will compare matches between the matched prioritized loan books and the raw loan books and return plots showing the match success rates on the sector level by...
+
+- number of loans
+- value of loans outstanding
+- and value of credit limit
+
+for each of them. It will also generate a summary table of the match success rates for all loan books. All files are written to the `DIR_MATCHED` directory.
+
+### Standard PACTA
+
+After you have finished matching all loan books, you can run the `batch_run_pacta.R` script. This will read in all matched prioritized loan books (based on the assumption that they follow the naming convention matched_prio_SOME_NAME.csv) and process all of them together. The script will:
+
+- batch run PACTA for Banks TMS and SDA calculations for all loan books
+- generate all standard PACTA for Banks plots and output files for a
+  given combination of `region` and `sector`
+
+### PACTA aggregated metrics
+
+To generate PACTA aggregate metrics, you can simply run the
+`run_aggregate_loanbooks.R` script entirely to:
 
 - set up project configurations
 - load required input files
-- prepare raw loan book data for batch processing in supervisor analysis
-  (NOTE: that every separate raw loan book file in the raw data input
-  file will be read in as a separate `group_id` This means that
-  preparing the loan books as one csv per bank will split the analysis
-  on a bank level. Adding one csv per loan book will split it on the
-  loan book level and grouping the raw loan books in any other form in
-  the csv files will propagate the corresponding grouping through the
-  analysis. This enables slicing and dicing the analysis as required for
-  each given context.)
-- run a simplified version of the matching (NOTE: in a real project, you
-  will have to follow the matching guidance as provided in the general
-  PACTA for Banks user guide. There is currently no way you can around
-  some manual matching or at least manual validation for obtaining
-  reasonable PACTA for Banks results!)
 - create a matched data set for calculations of benchmarks (no manual
   matching required)
-- batch run PACTA for Banks TMS and SDA calculations for all groups
-- generate all standard PACTA for Banks plots and ouput files for a
-  given combination of `region` and `sector`
 - prepare unweighted PACTA for Banks results at the company level as a
   preparatory step for calculating the alignment metrics.
 - calculate alignment metrics both at the company level and the group
   level
-- tweak the plot code to output supervisor-focused plots based on the
+  
+To generate the corresponding plots, you can run the script
+`plot_aggregate_loanbooks.R`, which takes as input the outputs of the previous
+script.
+- This will generate and save the aggregate plots for the alignment metrics
+- You can tweak the plot code to output supervisor-focused plots based on the
   alignment metrics, including:
   - Sankey plot of aligned/unaligned companies the groups are exposed to
+  - Scatter plot of the loan books at the sector level comparing the net
+    alignment metric by financial exposure
   - Timeline plot that shows the forward-looking trend of the aligment
     metric over time (net, buildout and phaseout)
   - Scatter plot that allows for peer comparison of alignment metric
