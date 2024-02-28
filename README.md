@@ -25,8 +25,8 @@ Scripts will be found at root level.
 The scripts depend on a number of PACTA related R packages, most of which can be found on CRAN. However, you will need to install the development version of `pacta.aggregate.loanbook.plots` from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("RMI-PACTA/pacta.aggregate.loanbook.plots")
+# install.packages("pak")
+pak::pak("RMI-PACTA/pacta.aggregate.loanbook.plots")
 ```
 
 ## dotenv
