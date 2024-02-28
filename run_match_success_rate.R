@@ -70,22 +70,16 @@ for (i in list_matched_prio) {
 }
 
 # read sector classification
-# TODO: code_system should come directly from the input file
 if (use_own_sector_classification) {
   sector_classification_system <- readr::read_csv(
     file = input_path_own_sector_classification,
     col_types = readr::cols_only(
+      code_system = "c",
       code = "c",
       sector = "c",
       borderline = "l"
     )
   ) %>%
-    dplyr::mutate(
-      # TODO: remove, must be in input
-      code_system = "NAICS_CAN",
-      # TODO: remove, we are using character strings here
-      code = as.double(code)
-    ) %>%
     dplyr::select(names(r2dii.data::sector_classifications))
 } else {
   sector_classifications_used <- unique(raw_lbk$sector_classification_system)
@@ -171,7 +165,7 @@ lbk_match_success <- raw_lbk_with_sectors %>%
 
 # optional: manually exclude loans from the match success calculation
 # this is intended to allow excluding loans that are misclassified as in scope,
-# but research reveals that the company is not actually in scope
+# but research shows that the company is not actually in scope
 if (file.exists(file.path(input_path_matched, "loans_to_remove.csv"))) {
   loans_to_remove <- readr::read_csv(
     file = file.path(input_path_matched, "loans_to_remove.csv"),
