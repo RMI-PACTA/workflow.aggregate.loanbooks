@@ -108,6 +108,23 @@ Once you have set up the .env file correctly, you can simply run the
   - Scatter plot that allows for peer comparison of alignment metric
     across companies or groups (automotive and power sectors only)
 
+### Optional: Use own sector classification system for matching loan books
+
+You can optionally use your own sector classification system for matching loan
+books. This can be useful if you primarily use a sector classification system
+that is not featured in `r2dii.data` but that maps well to the PACTA sectors.
+
+Instead of mapping the entire loan book to a sector classification system that
+is inclued in `r2dii.data`, you can simply provide a bridge file. In order to
+use this file, you will need to set the following variables in the `.env` file:
+
+``` bash
+# use own sector classification system
+USE_OWN_SECTOR_CLASSIFICATION=FALSE
+DIR_OWN_SECTOR_CLASSIFICATION="PATH/TO/SECTOR_CLASSIFICATION/FOLDER"
+FILENAME_OWN_SECTOR_CLASSIFICATION="own_sector_classification.csv"
+```
+
 ### Optional: Calculate sector splits for multi-sector companies
 
 You can optionally generate a sector split file. This can be used to split the
