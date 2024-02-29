@@ -60,9 +60,7 @@ if (file.exists(here::here(".env"))) {
 # TODO: add check if all files exist, resort to test files if not
 
 # load input data----
-region_isos_complete <- r2dii.data::region_isos
-
-region_isos_select <- region_isos_complete %>%
+region_isos_select <- r2dii.data::region_isos %>%
   dplyr::filter(
     .data$source == .env$scenario_source_input,
     .data$region %in% .env$region_select
@@ -140,12 +138,25 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
     )
 }
 
+# meta loan book----
+# aggregate all individual loan books into one meta loan book and add that to
+# the full list of loan books
+matched_prioritized_meta <- matched_prioritized %>%
+  dplyr::mutate(
+    id_loan = paste0(.data$id_loan, "_", .data$group_id),
+    group_id = "meta_loanbook"
+  )
+
+matched_prioritized <- matched_prioritized %>%
+  dplyr::bind_rows(matched_prioritized_meta)
+
 # generate all P4B outputs----
 unique_loanbooks_matched <- unique(matched_prioritized$group_id)
 
 ## generate SDA outputs----
 results_sda_total <- NULL
 
+# generate SDA results for each individual loan book, including the meta loan book
 for (i in unique_loanbooks_matched) {
   matched_i <- matched_prioritized %>%
     dplyr::filter(.data$group_id == i) %>%
@@ -163,14 +174,19 @@ for (i in unique_loanbooks_matched) {
     dplyr::bind_rows(results_sda_i)
 }
 
+# write SDA results to csv
 results_sda_total %>%
-  readr::write_csv(file.path(output_path_standard, "sda_results_all_groups.csv"))
+  readr::write_csv(
+    file.path(output_path_standard, "sda_results_all_groups.csv"),
+    na = ""
+  )
 
 
 ## generate TMS outputs----
 
 results_tms_total <- NULL
 
+# generate TMS results for each individual loan book, including the meta loan book
 for (i in unique_loanbooks_matched) {
   matched_i <- matched_prioritized %>%
     dplyr::filter(.data$group_id == i) %>%
@@ -188,8 +204,12 @@ for (i in unique_loanbooks_matched) {
     dplyr::bind_rows(results_tms_i)
 }
 
+# write TMS results to csv
 results_tms_total %>%
-  readr::write_csv(file.path(output_path_standard, "tms_results_all_groups.csv"))
+  readr::write_csv(
+    file.path(output_path_standard, "tms_results_all_groups.csv"),
+    na = ""
+  )
 
 # generate P4B plots----
 
