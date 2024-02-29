@@ -85,8 +85,6 @@ abcd <- readr::read_csv(
   col_types = col_types_abcd,
   col_select = dplyr::all_of(col_select_abcd)
 )
-# replace potential NA values with 0 in production
-abcd["production"][is.na(abcd["production"])] <- 0
 
 # optional: remove company-sector combinations where production in t5 = 0 when
 # it was greater than 0 in t0.
