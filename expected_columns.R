@@ -117,6 +117,30 @@ col_types_matched_all_groups <- readr::cols_only(
 )
 col_select_matched_all_groups <- names(col_types_matched_all_groups[["cols"]])
 
+# expected columns raw loan book file
+col_types_raw <- readr::cols(
+  id_loan = "c",
+  id_direct_loantaker = "c",
+  name_direct_loantaker = "c",
+  id_intermediate_parent_1 = "c",
+  name_intermediate_parent_1 = "c",
+  id_ultimate_parent = "c",
+  name_ultimate_parent = "c",
+  loan_size_outstanding = "n",
+  loan_size_outstanding_currency = "c",
+  loan_size_credit_limit = "n",
+  loan_size_credit_limit_currency = "c",
+  sector_classification_system = "c",
+  sector_classification_input_type = "c",
+  sector_classification_direct_loantaker = "c",
+  fi_type = "c",
+  flag_project_finance_loan = "c",
+  name_project = "c",
+  lei_direct_loantaker = "c",
+  isin_direct_loantaker = "c"
+  # .default = "c"
+)
+
 # expected columns companies_sector_split file
 col_types_companies_sector_split <- readr::cols_only(
   company_id = "i",
