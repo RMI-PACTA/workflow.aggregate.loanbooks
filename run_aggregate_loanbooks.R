@@ -126,10 +126,8 @@ for (i in benchmark_regions) {
     dplyr::bind_rows(matched_benchmark_i)
 }
 
-# TODO: do not use prefix "matched_prio_" for benchmark loan book to avoid
-# accidentally creating standard PACTA results for the benchmark
 matched_benchmark %>%
-  readr::write_csv(file.path(input_path_matched, "matched_prio_benchmark.csv"))
+  readr::write_csv(file.path(input_path_matched, "matched_benchmark.csv"))
 
 # read matched and prioritized loan book----
 list_matched_prio <- list.files(input_path_matched)[grepl("matched_prio_", list.files(input_path_matched))]
