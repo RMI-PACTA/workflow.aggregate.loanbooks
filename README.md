@@ -1,7 +1,10 @@
 # workflow.aggregate.loanbooks <img src="man/figures/logo.png" align="right" width="120" />
-This repository produces analyses used to compare the loan books across many banks, including bulk PACTA runs and aggregation metrics including plots.
+This repository produces analyses used to compare the loan books across many
+banks, including bulk PACTA runs and aggregation metrics including plots.
 
-It also contains a script that can be used to derive production-based sector split values for companies that are active across multiple energy related in-scope PACTA sectors.
+It also contains a script that can be used to derive production-based sector
+split values for companies that are active across multiple energy related
+in-scope PACTA sectors.
 
 <!-- badges: start -->
 
@@ -9,8 +12,11 @@ It also contains a script that can be used to derive production-based sector spl
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-This repository contains scripts that generate bulk PACTA for Banks analyses and run an aggregation of loan books for many groups or banks. It summarizes the aggregations in plots.
-These types of analyses are developed for, but not restricted to, analyses of many financial institutions at once, e.g. in a supervisory context.
+This repository contains scripts that generate bulk PACTA for Banks analyses and
+run an aggregation of loan books for many groups or banks. It summarizes the
+aggregations in plots.
+These types of analyses are developed for, but not restricted to, analyses of
+many financial institutions at once, e.g. in a supervisory context.
 
 All third party data must be input by the user and is not part of this
 repository.
@@ -22,7 +28,9 @@ Scripts will be found at root level.
 
 ## Installation
 
-The scripts depend on a number of PACTA related R packages, most of which can be found on CRAN. However, you will need to install the development version of `pacta.aggregate.loanbook.plots` from [GitHub](https://github.com/) with:
+The scripts depend on a number of PACTA related R packages, most of which can be
+found on CRAN. However, you will need to install the development version of
+`pacta.aggregate.loanbook.plots` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -77,17 +85,33 @@ scripts to run the full analysis.
 
 ### Matching loan books
 
-To check the progress of the matching process, you can run the `run_match_success_rate.R` script. This will compare matches between the matched prioritized loan books and the raw loan books and return plots showing the match success rates on the sector level by...
+`run_matching.R` will run the matching process for one loan book at a time. This
+is because the matching process requires a manual step. So a full automation is
+not feasible. The loan book to work on is specified in the `.env` file, using
+the `FILENAME_RAW` parameter. This will create the initial matching for the loan
+book and save it to the `DIR_MATCHED` directory. After completing the manual
+matching process, the script will continue by reading in the manually matched
+file and running the prioritization step, before saving the final matched file
+to the `DIR_MATCHED` directory.
+
+To check the progress of the matching process, you can run the
+`run_match_success_rate.R` script. This will compare matches between the matched
+prioritized loan books and the raw loan books and return plots showing the match
+success rates on the sector level by...
 
 - number of loans
 - value of loans outstanding
 - and value of credit limit
 
-for each of them. It will also generate a summary table of the match success rates for all loan books. All files are written to the `DIR_MATCHED` directory.
+for each of them. It will also generate a summary table of the match success
+rates for all loan books. All files are written to the `DIR_MATCHED` directory.
 
 ### Standard PACTA
 
-After you have finished matching all loan books, you can run the `batch_run_pacta.R` script. This will read in all matched prioritized loan books (based on the assumption that they follow the naming convention matched_prio_SOME_NAME.csv) and process all of them together. The script will:
+After you have finished matching all loan books, you can run the
+`batch_run_pacta.R` script. This will read in all matched prioritized loan books
+(based on the assumption that they follow the naming convention
+matched_prio_SOME_NAME.csv) and process all of them together. The script will:
 
 - batch run PACTA for Banks TMS and SDA calculations for all loan books
 - generate all standard PACTA for Banks plots and output files for a
@@ -187,59 +211,90 @@ file `companies_sector_split.csv` into the matched directory as set up
 in `.env`.
 
 ### Usage of the sector split
-When companies operate in multiple sectors within the PACTA scope the following rules can be used to split the loan value between the different sectors:
+When companies operate in multiple sectors within the PACTA scope the following
+rules can be used to split the loan value between the different sectors:
 
 **Rule 1:**
 
-- Case description: Secondary business operation is in the PACTA scope but only supportive to the main business line.
+- Case description: Secondary business operation is in the PACTA scope but only
+supportive to the main business line.
 
 - Outcome: The secondary business operation is not to be included in the analysis.
 
 **Rule 2:**
 
-- Case description: Multiple business operations are in the PACTA scope and are considered main business lines.
+- Case description: Multiple business operations are in the PACTA scope and are
+considered main business lines.
 
    **Rule 2a)**
 
-  - Case description: Multiple business operations are in the PACTA scope and in non-energy related sectors.
+  - Case description: Multiple business operations are in the PACTA scope and in 
+  non-energy related sectors.
 
   - Outcome: Loans are to be split evenly by the number of sectors.
 
    **Rule 2b)**
 
-  - Case description: Multiple business operations are in the PACTA scope and are in energy-related sectors (Oil & Gas, Coal, power).
+  - Case description: Multiple business operations are in the PACTA scope and
+  are in energy-related sectors (Oil & Gas, Coal, power).
 
-  - Outcome: Loans are to be split based on a common primary energy production unit (tons of oil equivalent).
+  - Outcome: Loans are to be split based on a common primary energy production
+  unit (tons of oil equivalent).
   
    **Rule 2c)**
 
-  - Case description: Multiple business operations are in the PACTA scope and are found both in in energy-related sectors (Oil & Gas, Coal, power) and non-energy related sectors.
+  - Case description: Multiple business operations are in the PACTA scope and
+  are found both in in energy-related sectors (Oil & Gas, Coal, power) and
+  non-energy related sectors.
 
-  - Outcome: Loans are to be split evenly by the number of sectors. For the energy sectors, the remaining share after evenly splitting the loan is then allocated based on a common primary energy production unit (tons of oil equivalent).
+  - Outcome: Loans are to be split evenly by the number of sectors. For the
+  energy sectors, the remaining share after evenly splitting the loan is then
+  allocated based on a common primary energy production unit (tons of oil
+  equivalent).
 
 
 ## Methodological note: Sector split for energy companies
 
-Where a company has activities in multiple energy-related sectors, a common output unit of primary energy is needed to compare quantities across sectors. The chosen common unit of primary energy is million tons of oil equivalent (Mtoe) and is converted for the respective sectors as follows:
+Where a company has activities in multiple energy-related sectors, a common
+output unit of primary energy is needed to compare quantities across sectors.
+The chosen common unit of primary energy is million tons of oil equivalent
+(Mtoe) and is converted for the respective sectors as follows:
 
 - coal mining sector is converted from metric tonnes of coal (t coal)
 - upstream oil & gas is converted from gigajoules (GJ)
 - power generation is converted from megawatt hours (MWh)
 
-A methodological distinction between fossil fuel-based high carbon power generation and fossil-free low carbon power generation is made:
+A methodological distinction between fossil fuel-based high carbon power
+generation and fossil-free low carbon power generation is made:
 
-- In order to compare the power generation sector to the upstream fossil fuel extractive sectors a further conversion is needed to account for the primary energy efficiency of fossil fuel-based power generation. This is because a large proportion of the thermal energy from burning fuel is not converted into electricity. This loss is taken into account by using primary energy efficiency factors for the respective technologies in the power sector.
-- This step is not required for low carbon technologies because even though some have relatively low primary energy efficiencies (e.g. geothermal power at 10%) the input energy is not a fossil fuel and so from an accounting point of view does not contribute to the exposure of a company to fossil fuel production and use.
+- In order to compare the power generation sector to the upstream fossil fuel
+extractive sectors a further conversion is needed to account for the primary
+energy efficiency of fossil fuel-based power generation. This is because a large
+proportion of the thermal energy from burning fuel is not converted into
+electricity. This loss is taken into account by using primary energy efficiency
+factors for the respective technologies in the power sector.
+- This step is not required for low carbon technologies because even though some
+have relatively low primary energy efficiencies (e.g. geothermal power at 10%)
+the input energy is not a fossil fuel and so from an accounting point of view
+does not contribute to the exposure of a company to fossil fuel production and
+use.
 
-It follows that to calculate the primary energy use ($E$) for a company $c$ per technology $a$ in sector $b = Power$ after accounting for primary energy efficiency factor $P$ (where $g$ is initial electricity generation before conversion to primary energy use) the following formula shall be used:
+It follows that to calculate the primary energy use ($E$) for a company $c$ per
+technology $a$ in sector $b = Power$ after accounting for primary energy
+efficiency factor $P$ (where $g$ is initial electricity generation before
+conversion to primary energy use) the following formula shall be used:
 
 $$E_{a,b=power,c} = \dfrac{g_{a,b=power,c}}{P_{a}}$$
 
 The primary energy efficiency factors are taken from the IEA[^1].
 
-[^1]: IEA (2008) Energy efficiency indicators for public electricity production from fossil fuels, IEA Information Paper, OECD/IEA, July 2008
+[^1]: IEA (2008) Energy efficiency indicators for public electricity production
+from fossil fuels, IEA Information Paper, OECD/IEA, July 2008
 
-Then in the next step the conversion to common units of primary energy across the three respective sectors mentioned is made. The conversion factors ($F$) are taken from the [IEA World Energy Balances 2022](http://wds.iea.org/wds/pdf/WORLDBAL_Documentation.pdf) publication and the [IEA Unit Converter](https://www.iea.org/data-and-statistics/data-tools/unit-converter).
+Then in the next step the conversion to common units of primary energy across
+the three respective sectors mentioned is made. The conversion factors ($F$)
+are taken from the [IEA World Energy Balances 2022](http://wds.iea.org/wds/pdf/WORLDBAL_Documentation.pdf) publication and the
+[IEA Unit Converter](https://www.iea.org/data-and-statistics/data-tools/unit-converter).
 
 The output in Mtoe for $a$ company $c$ in sector $b$ with conversion factor $F$ is:
 
@@ -249,4 +304,10 @@ The relative production weighting per sector $b$ for a company $c$, is then calc
 
 $$sector\ share_{a,b,c} = \dfrac{E_{b,c}^{Mtoe}}{\sum_{b} E_{b,c}^{Mtoe}}$$
 
-This company level sector split can now be used as a proxy to attribute parts of a loan to different transition relevant sectors a company operates in, taking into account the relative importance of each sector in the companies production profile. Note that the split only refers to the energy related in-sope PACTA sectors. This means that if a company additionally operates in another non-energy PACTA sector, the split should only be applied to the share of a loan that is attributed to the energy sectors.
+This company level sector split can now be used as a proxy to attribute parts of
+a loan to different transition relevant sectors a company operates in, taking
+into account the relative importance of each sector in the companies production
+profile. Note that the split only refers to the energy related in-scope PACTA
+sectors. This means that if a company additionally operates in another
+non-energy PACTA sector, the split should only be applied to the share of a loan
+that is attributed to the energy sectors.
