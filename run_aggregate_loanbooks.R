@@ -161,6 +161,18 @@ if (apply_sector_split & sector_split_type_select %in% c("equal_weights", "worst
     )
 }
 
+# meta loan book----
+# aggregate all individual loan books into one meta loan book and add that to
+# the full list of loan books
+matched_prioritized_meta <- matched_prioritized %>%
+  dplyr::mutate(
+    id_loan = paste0(.data$id_loan, "_", .data$group_id),
+    group_id = "meta_loanbook"
+  )
+
+matched_prioritized <- matched_prioritized %>%
+  dplyr::bind_rows(matched_prioritized_meta)
+
 # write final version of matched_prioritized to file for use in plot_aggregate_loanbooks.R
 matched_prioritized %>%
   readr::write_csv(file.path(input_path_matched, "matched_prioritized_final_for_plots.csv"))
