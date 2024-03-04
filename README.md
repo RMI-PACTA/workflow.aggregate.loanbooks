@@ -1,12 +1,12 @@
 # workflow.aggregate.loanbooks <img src="man/figures/logo.png" align="right" width="120" />
+
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
 This repository produces analyses used to compare the loan books across many banks, including bulk PACTA runs and aggregation metrics including plots.
 
 It also contains a script that can be used to derive production-based sector split values for companies that are active across multiple energy related in-scope PACTA sectors.
-
-<!-- badges: start -->
-
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<!-- badges: end -->
 
 This repository contains scripts that generate bulk PACTA for Banks analyses and run an aggregation of loan books for many groups or banks. It summarizes the aggregations in plots. These types of analyses are developed for, but not restricted to, analyses of many financial institutions at once, e.g. in a supervisory context.
 
