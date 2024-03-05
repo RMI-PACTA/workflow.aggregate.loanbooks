@@ -375,7 +375,7 @@ validate_input_args_sample_raw_loanbook_from_abcd <- function(n_companies,
 
 validate_input_data_sample_raw_loanbook_from_abcd <- function(abcd,
                                                               sector_shares) {
-  pacta.aggregate.loanbook.plots::validate_data_has_expected_cols(
+  pacta.multi.loanbook.analysis::validate_data_has_expected_cols(
     data = abcd,
     expected_columns = c(
       "company_id", "name_company", "lei", "is_ultimate_owner", "sector",
@@ -384,7 +384,7 @@ validate_input_data_sample_raw_loanbook_from_abcd <- function(abcd,
     )
   )
 
-  pacta.aggregate.loanbook.plots::validate_data_has_expected_cols(
+  pacta.multi.loanbook.analysis::validate_data_has_expected_cols(
     data = sector_shares,
     expected_columns = c(
       "sector", "share"
