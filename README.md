@@ -18,11 +18,12 @@ Scripts will be found at root level.
 
 ## Installation
 
-The scripts depend on a number of PACTA related R packages, most of which can be found on CRAN. However, you will need to install the development version of `pacta.multi.loanbook.analysis` from [GitHub](https://github.com/) with:
+The scripts depend on a number of PACTA related R packages, most of which can be found on CRAN. However, you will need to install the development version of `pacta.multi.loanbook.analysis` and `pacta.multi.loanbook.plot` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
 pak::pak("RMI-PACTA/pacta.multi.loanbook.analysis")
+pak::pak("RMI-PACTA/pacta.multi.loanbook.plot")
 ```
 
 ## dotenv
