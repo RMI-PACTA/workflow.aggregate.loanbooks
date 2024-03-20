@@ -20,9 +20,7 @@ source("R/plots.R")
 # set up project----
 if (file.exists(here::here(".env"))) {
   # paths
-  input_dir_abcd <- Sys.getenv("DIR_ABCD")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
-  input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
   output_path <- Sys.getenv("DIR_OUTPUT")
   output_path_aggregated <- file.path(output_path, "aggregated")
 
@@ -52,13 +50,6 @@ if (file.exists(here::here(".env"))) {
 }
 
 # load required data----
-
-## asset based company data----
-abcd <- readr::read_csv(
-  file.path(input_dir_abcd, "abcd_final_for_plots.csv"),
-  col_types = col_types_abcd,
-  col_select = dplyr::all_of(col_select_abcd)
-)
 
 ## matched loanbook data----
 matched_prioritized <- readr::read_csv(
