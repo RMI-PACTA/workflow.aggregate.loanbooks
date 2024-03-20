@@ -30,7 +30,6 @@ if (file.exists(here::here(".env"))) {
   region_select <- Sys.getenv("PARAM_REGION_SELECT")
   start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
   time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
-  # benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
   if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
