@@ -1,12 +1,9 @@
 # load packages----
 library(dotenv)
 library(dplyr)
-library(pacta.multi.loanbook.analysis)
 library(pacta.multi.loanbook.plot)
 library(r2dii.analysis)
 library(r2dii.data)
-library(r2dii.match)
-library(r2dii.plot)
 library(readxl)
 library(rlang)
 library(tidyr)
