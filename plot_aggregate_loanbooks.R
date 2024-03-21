@@ -1,12 +1,9 @@
 # load packages----
 library(dotenv)
 library(dplyr)
-library(pacta.multi.loanbook.analysis)
 library(pacta.multi.loanbook.plot)
 library(r2dii.analysis)
 library(r2dii.data)
-library(r2dii.match)
-library(r2dii.plot)
 library(readxl)
 library(rlang)
 library(tidyr)
@@ -20,9 +17,7 @@ source("R/plots.R")
 # set up project----
 if (file.exists(here::here(".env"))) {
   # paths
-  input_dir_abcd <- Sys.getenv("DIR_ABCD")
   input_path_matched <- Sys.getenv("DIR_MATCHED")
-  input_path_abcd <- file.path(input_dir_abcd, Sys.getenv("FILENAME_ABCD"))
   output_path <- Sys.getenv("DIR_OUTPUT")
   output_path_aggregated <- file.path(output_path, "aggregated")
 
@@ -32,7 +27,6 @@ if (file.exists(here::here(".env"))) {
   region_select <- Sys.getenv("PARAM_REGION_SELECT")
   start_year <- as.numeric(Sys.getenv("PARAM_START_YEAR"))
   time_frame_select <- as.integer(Sys.getenv("PARAM_TIME_FRAME"))
-  # benchmark_regions <- unlist(base::strsplit(Sys.getenv("PARAM_BENCHMARK_REGIONS"), ","))
   apply_sector_split <- as.logical(Sys.getenv("APPLY_SECTOR_SPLIT"))
   if (is.na(apply_sector_split)) {apply_sector_split <- FALSE}
   if (apply_sector_split) {sector_split_type_select <- Sys.getenv("SECTOR_SPLIT_TYPE")}
@@ -52,13 +46,6 @@ if (file.exists(here::here(".env"))) {
 }
 
 # load required data----
-
-## asset based company data----
-abcd <- readr::read_csv(
-  file.path(input_dir_abcd, "abcd_final_for_plots.csv"),
-  col_types = col_types_abcd,
-  col_select = dplyr::all_of(col_select_abcd)
-)
 
 ## matched loanbook data----
 matched_prioritized <- readr::read_csv(
