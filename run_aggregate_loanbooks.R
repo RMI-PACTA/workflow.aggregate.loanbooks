@@ -232,58 +232,60 @@ tms_result_for_aggregation <- target_market_share(
   increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
 )
 
-tms_result_for_aggregation_benchmark <- NULL
+# TODO: figure out more efficient way to calculate benchmarks
+# tms_result_for_aggregation_benchmark <- NULL
 
 # TODO: simplify this one too
-unique_benchmarks_tms <- unique(matched_benchmark$benchmark_region)
+# unique_benchmarks_tms <- unique(matched_benchmark$benchmark_region)
 
 # TODO: needs proper overhaul, memory issues
-for (i in unique_benchmarks_tms) {
-  tryCatch(
-    {
-      benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
-
-      allowed_countries_i <- region_isos_complete %>%
-        dplyr::filter(
-          .data$source == .env$scenario_source_input,
-          .data$region == .env$benchmark_region_i,
-        ) %>%
-        dplyr::pull(.data$isos) %>%
-        toupper()
-
-      abcd_benchmark_region_i <- abcd %>%
-        dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
-
-      tms_result_for_aggregation_benchmark_i <- target_market_share(
-        data = matched_benchmark %>%
-          dplyr::filter(.data$benchmark_region == i) %>%
-          dplyr::select(-"benchmark_region"),
-        abcd = abcd_benchmark_region_i,
-        scenario = scenario_input_tms,
-        region_isos = region_isos_select,
-        by_company = TRUE,
-        weight_production = FALSE,
-        increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
-      )
-
-      tms_result_for_aggregation_benchmark_i <- tms_result_for_aggregation_benchmark_i %>%
-        dplyr::mutate(benchmark_region = .env$i)
-
-      tms_result_for_aggregation_benchmark <- tms_result_for_aggregation_benchmark %>%
-        dplyr::bind_rows(tms_result_for_aggregation_benchmark_i)
-
-    },
-    error = function(e) {
-      log_text <- glue::glue("{Sys.time()} - region: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
-      write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
-    }
-  )
-}
+# for (i in unique_benchmarks_tms) {
+#   tryCatch(
+#     {
+#       benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
+#
+#       allowed_countries_i <- region_isos_complete %>%
+#         dplyr::filter(
+#           .data$source == .env$scenario_source_input,
+#           .data$region == .env$benchmark_region_i,
+#         ) %>%
+#         dplyr::pull(.data$isos) %>%
+#         toupper()
+#
+#       abcd_benchmark_region_i <- abcd %>%
+#         dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
+#
+#       tms_result_for_aggregation_benchmark_i <- target_market_share(
+#         data = matched_benchmark %>%
+#           dplyr::filter(.data$benchmark_region == i) %>%
+#           dplyr::select(-"benchmark_region"),
+#         abcd = abcd_benchmark_region_i,
+#         scenario = scenario_input_tms,
+#         region_isos = region_isos_select,
+#         by_company = FALSE,
+#         weight_production = TRUE,
+#         increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
+#       )
+#
+#       tms_result_for_aggregation_benchmark_i <- tms_result_for_aggregation_benchmark_i %>%
+#         dplyr::mutate(benchmark_region = .env$i)
+#
+#       tms_result_for_aggregation_benchmark <- tms_result_for_aggregation_benchmark %>%
+#         dplyr::bind_rows(tms_result_for_aggregation_benchmark_i)
+#
+#     },
+#     error = function(e) {
+#       log_text <- glue::glue("{Sys.time()} - region: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
+#       write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
+#     }
+#   )
+# }
 
 # bind the TMS results from the loan book and benchmark PACTA runs for further
 # aggregation
-tms_result_for_aggregation <- tms_result_for_aggregation %>%
-  dplyr::bind_rows(tms_result_for_aggregation_benchmark)
+tms_result_for_aggregation <- tms_result_for_aggregation #%>%
+  # TODO: figure out more efficient way to calculate benchmarks
+  # dplyr::bind_rows(tms_result_for_aggregation_benchmark)
 
 ## aggregate TMS P4B results to company level alignment metric----
 # calculate aggregation for the loan book
@@ -334,54 +336,56 @@ sda_result_for_aggregation <- target_sda(
   region_isos = region_isos_select
 )
 
-sda_result_for_aggregation_benchmark <- NULL
-
-unique_benchmarks_sda <- unique(matched_benchmark$group_id)
-
-for (i in unique_benchmarks_sda) {
-  tryCatch(
-    {
-      benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
-
-      allowed_countries_i <- region_isos_complete %>%
-        dplyr::filter(
-          .data$source == .env$scenario_source_input,
-          .data$region == .env$benchmark_region_i,
-        ) %>%
-        dplyr::pull(.data$isos) %>%
-        toupper()
-
-      abcd_benchmark_region_i <- abcd %>%
-        dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
-
-      sda_result_for_aggregation_benchmark_i <- target_sda(
-        data = matched_benchmark %>%
-          dplyr::filter(.data$group_id == i) %>%
-          dplyr::select(-"group_id"),
-        abcd = abcd_benchmark_region_i,
-        co2_intensity_scenario = scenario_input_sda,
-        by_company = TRUE,
-        region_isos = region_isos_select
-      )
-
-      sda_result_for_aggregation_benchmark_i <- sda_result_for_aggregation_benchmark_i %>%
-        dplyr::mutate(group_id = .env$i)
-
-      sda_result_for_aggregation_benchmark <- sda_result_for_aggregation_benchmark %>%
-        dplyr::bind_rows(sda_result_for_aggregation_benchmark_i)
-
-    },
-    error = function(e) {
-      log_text <- glue::glue("{Sys.time()} - group: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
-      write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
-    }
-  )
-}
+# TODO figure out more efficient way to calculate benchmarks
+# sda_result_for_aggregation_benchmark <- NULL
+#
+# unique_benchmarks_sda <- unique(matched_benchmark$group_id)
+#
+# for (i in unique_benchmarks_sda) {
+#   tryCatch(
+#     {
+#       benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
+#
+#       allowed_countries_i <- region_isos_complete %>%
+#         dplyr::filter(
+#           .data$source == .env$scenario_source_input,
+#           .data$region == .env$benchmark_region_i,
+#         ) %>%
+#         dplyr::pull(.data$isos) %>%
+#         toupper()
+#
+#       abcd_benchmark_region_i <- abcd %>%
+#         dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
+#
+#       sda_result_for_aggregation_benchmark_i <- target_sda(
+#         data = matched_benchmark %>%
+#           dplyr::filter(.data$group_id == i) %>%
+#           dplyr::select(-"group_id"),
+#         abcd = abcd_benchmark_region_i,
+#         co2_intensity_scenario = scenario_input_sda,
+#         by_company = TRUE,
+#         region_isos = region_isos_select
+#       )
+#
+#       sda_result_for_aggregation_benchmark_i <- sda_result_for_aggregation_benchmark_i %>%
+#         dplyr::mutate(group_id = .env$i)
+#
+#       sda_result_for_aggregation_benchmark <- sda_result_for_aggregation_benchmark %>%
+#         dplyr::bind_rows(sda_result_for_aggregation_benchmark_i)
+#
+#     },
+#     error = function(e) {
+#       log_text <- glue::glue("{Sys.time()} - group: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
+#       write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
+#     }
+#   )
+# }
 
 # bind the SDA results from the loan book and benchmark PACTA runs for further
 # aggregation
 sda_result_for_aggregation <- sda_result_for_aggregation %>%
-  dplyr::bind_rows(sda_result_for_aggregation_benchmark) %>%
+  # TODO: figure out more efficient way to calculate benchmarks
+  # dplyr::bind_rows(sda_result_for_aggregation_benchmark) %>%
   dplyr::filter(.data$year >= .env$start_year)
 
 ## aggregate SDA P4B results to company level alignment metric----
@@ -414,6 +418,25 @@ company_alignment_net <- company_alignment_net_tms %>%
 # do we also want company level alignment metric matched to loan books are groups in a non-aggregated way?
 
 # show exposures (n companies and loan size) by alignment with given scenario
+write_alignment_metric_to_csv <- function(data,
+                                          output_dir,
+                                          level,
+                                          .by) {
+  by_group <- paste(.by, collapse = "_")
+
+  data$company %>%
+    readr::write_csv(
+      file = file.path(output_dir, glue::glue("company_exposure_{level}_aggregate_alignment_by_{by_group}.csv")),
+      na = ""
+    )
+
+  data$aggregate %>%
+    readr::write_csv(
+      file = file.path(output_dir, glue::glue("loanbook_exposure_{level}_aggregate_alignment_by_{by_group}.csv")),
+      na = ""
+    )
+
+}
 
 # net
 ## meta
@@ -423,17 +446,12 @@ aggregated_alignment_net_meta <- company_alignment_net %>%
     level = "net"
   )
 
-aggregated_alignment_net_meta$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_net_aggregate_alignment_by_meta.csv"),
-    na = ""
-  )
-
-aggregated_alignment_net_meta$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_net_aggregate_alignment_by_meta.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_net_meta,
+  output_dir = output_path_aggregated,
+  level = "net",
+  .by = "meta"
+)
 
 ## group_id
 aggregated_alignment_net_group_id <- company_alignment_net %>%
@@ -443,17 +461,12 @@ aggregated_alignment_net_group_id <- company_alignment_net %>%
     .by = "group_id"
   )
 
-aggregated_alignment_net_group_id$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_net_aggregate_alignment_by_group_id.csv"),
-    na = ""
-  )
-
-aggregated_alignment_net_group_id$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_net_aggregate_alignment_by_group_id.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_net_group_id,
+  output_dir = output_path_aggregated,
+  level = "net",
+  .by = "group_id"
+)
 
 ## foo
 aggregated_alignment_net_foo <- company_alignment_net %>%
@@ -463,17 +476,12 @@ aggregated_alignment_net_foo <- company_alignment_net %>%
     .by = "foo"
   )
 
-aggregated_alignment_net_foo$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_net_aggregate_alignment_by_foo.csv"),
-    na = ""
-  )
-
-aggregated_alignment_net_foo$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_net_aggregate_alignment_by_foo.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_net_foo,
+  output_dir = output_path_aggregated,
+  level = "net",
+  .by = "foo"
+)
 
 ## group_id, foo
 aggregated_alignment_net_group_id_foo <- company_alignment_net %>%
@@ -483,17 +491,12 @@ aggregated_alignment_net_group_id_foo <- company_alignment_net %>%
     .by = c("group_id", "foo")
   )
 
-aggregated_alignment_net_group_id_foo$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_net_aggregate_alignment_by_group_id_foo.csv"),
-    na = ""
-  )
-
-aggregated_alignment_net_group_id_foo$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_net_aggregate_alignment_by_group_id_foo.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_net_group_id_foo,
+  output_dir = output_path_aggregated,
+  level = "net",
+  .by = c("group_id", "foo")
+)
 
 # buildout / phaseout
 ## meta
@@ -503,17 +506,12 @@ aggregated_alignment_bo_po_meta <- company_alignment_bo_po_tms %>%
     level = "bo_po"
   )
 
-aggregated_alignment_bo_po_meta$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_bo_po_aggregate_alignment_by_meta.csv"),
-    na = ""
-  )
-
-aggregated_alignment_bo_po_meta$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_bo_po_aggregate_alignment_by_meta.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_bo_po_meta,
+  output_dir = output_path_aggregated,
+  level = "bo_po",
+  .by = "meta"
+)
 
 ## group_id
 aggregated_alignment_bo_po_group_id <- company_alignment_bo_po_tms %>%
@@ -523,17 +521,12 @@ aggregated_alignment_bo_po_group_id <- company_alignment_bo_po_tms %>%
     .by = "group_id"
   )
 
-aggregated_alignment_bo_po_group_id$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_bo_po_aggregate_alignment_by_group_id.csv"),
-    na = ""
-  )
-
-aggregated_alignment_bo_po_group_id$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_bo_po_aggregate_alignment_by_group_id.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_bo_po_group_id,
+  output_dir = output_path_aggregated,
+  level = "bo_po",
+  .by = "group_id"
+)
 
 ## foo
 aggregated_alignment_bo_po_foo <- company_alignment_bo_po_tms %>%
@@ -543,17 +536,12 @@ aggregated_alignment_bo_po_foo <- company_alignment_bo_po_tms %>%
     .by = "foo"
   )
 
-aggregated_alignment_bo_po_foo$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_bo_po_aggregate_alignment_by_foo.csv"),
-    na = ""
-  )
-
-aggregated_alignment_bo_po_foo$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_bo_po_aggregate_alignment_by_foo.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_bo_po_foo,
+  output_dir = output_path_aggregated,
+  level = "bo_po",
+  .by = "foo"
+)
 
 ## group_id, foo
 aggregated_alignment_bo_po_group_id_foo <- company_alignment_bo_po_tms %>%
@@ -563,14 +551,9 @@ aggregated_alignment_bo_po_group_id_foo <- company_alignment_bo_po_tms %>%
     .by = c("group_id", "foo")
   )
 
-aggregated_alignment_bo_po_group_id_foo$company %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "company_exposure_bo_po_aggregate_alignment_by_group_id_foo.csv"),
-    na = ""
-  )
-
-aggregated_alignment_bo_po_group_id_foo$aggregate %>%
-  readr::write_csv(
-    file = file.path(output_path_aggregated, "loanbook_exposure_bo_po_aggregate_alignment_by_group_id_foo.csv"),
-    na = ""
-  )
+write_alignment_metric_to_csv(
+  data = aggregated_alignment_bo_po_group_id_foo,
+  output_dir = output_path_aggregated,
+  level = "bo_po",
+  .by = c("group_id", "foo")
+)
