@@ -48,6 +48,7 @@ if (file.exists(here::here(".env"))) {
 # load required data----
 
 # TODO: this script should take flexible grouping
+# TODO: check this works appropriately for meta level / by_group = NULL
 # TODO: flexible grouping on plot side still open for sankey and for animated scatter
 # by_groups <- "group_id"
 by_groups <- "foo"
