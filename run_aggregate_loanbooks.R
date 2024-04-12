@@ -216,8 +216,8 @@ by_groups <- names(matched_prioritized)[!names(matched_prioritized) %in% col_sta
 # unique_groups_sda <- unique_loanbooks_matched
 
 # add benchmark loan book for aggregation
-matched_total <- matched_prioritized %>%
-  dplyr::bind_rows(matched_benchmark)
+matched_total <- matched_prioritized #%>%
+  # dplyr::bind_rows(matched_benchmark)
 
 
 ## prepare TMS company level P4B results for aggregation----
