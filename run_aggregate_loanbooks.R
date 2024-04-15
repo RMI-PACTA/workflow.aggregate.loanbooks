@@ -421,18 +421,22 @@ company_alignment_net <- company_alignment_net_tms %>%
 write_alignment_metric_to_csv <- function(data,
                                           output_dir,
                                           level,
-                                          .by) {
-  by_group <- paste(.by, collapse = "_")
+                                          .by = NULL) {
+  if (is.null(.by)) {
+    by_group <- ""
+  } else {
+    by_group <- glue::glue("_by_{paste(.by, collapse = \"_\")}")
+  }
 
   data$company %>%
     readr::write_csv(
-      file = file.path(output_dir, glue::glue("company_exposure_{level}_aggregate_alignment_by_{by_group}.csv")),
+      file = file.path(output_dir, glue::glue("company_exposure_{level}_aggregate_alignment{by_group}.csv")),
       na = ""
     )
 
   data$aggregate %>%
     readr::write_csv(
-      file = file.path(output_dir, glue::glue("loanbook_exposure_{level}_aggregate_alignment_by_{by_group}.csv")),
+      file = file.path(output_dir, glue::glue("loanbook_exposure_{level}_aggregate_alignment{by_group}.csv")),
       na = ""
     )
 
@@ -450,7 +454,6 @@ write_alignment_metric_to_csv(
   data = aggregated_alignment_net_meta,
   output_dir = output_path_aggregated,
   level = "net",
-  .by = "meta"
 )
 
 ## group_id
@@ -509,8 +512,7 @@ aggregated_alignment_bo_po_meta <- company_alignment_bo_po_tms %>%
 write_alignment_metric_to_csv(
   data = aggregated_alignment_bo_po_meta,
   output_dir = output_path_aggregated,
-  level = "bo_po",
-  .by = "meta"
+  level = "bo_po"
 )
 
 ## group_id
