@@ -194,7 +194,7 @@ if (length(by_groups) <= 1) {
         year = year_scatter_alignment_exposure,
         region = region_scatter_alignment_exposure,
         scenario = scenario_select,
-        category = by_groups,
+        by_group = by_groups,
         exclude_groups = "benchmark"
       )
 
@@ -216,7 +216,7 @@ if (length(by_groups) <= 1) {
       plot_scatter_alignment_exposure(
         floor_outliers = -1,
         cap_outliers = 1,
-        category = by_groups,
+        by_group = by_groups,
         currency = currency
       )
 
