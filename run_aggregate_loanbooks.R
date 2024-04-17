@@ -48,6 +48,12 @@ if (file.exists(here::here(".env"))) {
     output_path_aggregated <- file.path(output_path, sector_split_type_select, "aggregated")
   }
 
+  by_groups <- Sys.getenv("BY_GROUP")
+  if (by_groups == "NULL") {by_groups <- NULL}
+  if (grepl(",", by_groups)) {
+    by_groups <- gsub(" ", "", unlist(strsplit(by_groups, split = ",")))
+  }
+
   dir.create(output_path_aggregated, recursive = TRUE)
 
 } else {
@@ -107,28 +113,6 @@ if (remove_inactive_companies) {
 # write final version of abcd to file for use in plot_aggregate_loanbooks.R
 abcd %>%
   readr::write_csv(file.path(input_dir_abcd, "abcd_final_for_plots.csv"))
-
-# add loan book with corporate economy benchmark----
-# benchmark_region can be selected based on r2dii.data::region_isos
-matched_benchmark <- NULL
-
-# matching the benchmark loan book separately, because it is not needed for the
-# generation of standard PACTA output
-for (i in benchmark_regions) {
-  matched_benchmark_i <- abcd %>%
-    create_benchmark_loanbook(
-      scenario_source = scenario_source_input,
-      start_year = start_year,
-      region_isos = region_isos_complete,
-      benchmark_region = i
-    )
-
-  matched_benchmark <- matched_benchmark %>%
-    dplyr::bind_rows(matched_benchmark_i)
-}
-
-matched_benchmark %>%
-  readr::write_csv(file.path(input_path_matched, "matched_benchmark.csv"))
 
 # read matched and prioritized loan book----
 list_matched_prio <- list.files(input_path_matched)[grepl("matched_prio_", list.files(input_path_matched))]
@@ -203,27 +187,17 @@ technology_direction <- scenario_input_tms %>%
   ) %>%
   dplyr::select(-"increasing_or_decreasing")
 
-## retrieve set of unique groups to loop over----
-# TODO: it is probably best to ask the user to provide a list ov variables to group by and not try to analyse by all possible combinations
-# most likely it makes sense to calculate company results by building a unique companies loan book and dropping all groups from that,
-# instead of looping over all groups
-# we would then create lbk_company results by joining the relevant matched prio loan books by name_abcd with the company results
-# OPEN: how to handle combinations of groups, e.g. analysis by foo AND bar
-by_groups <- names(matched_prioritized)[!names(matched_prioritized) %in% col_standard_matched_prio_all_groups]
-
-# unique_loanbooks_matched <- unique(matched_prioritized$group_id)
-# unique_groups_tms <- unique_loanbooks_matched
-# unique_groups_sda <- unique_loanbooks_matched
 
 # add benchmark loan book for aggregation
-matched_total <- matched_prioritized #%>%
-  # dplyr::bind_rows(matched_benchmark)
+matched_total <- matched_prioritized
 
+# remove non standard columns from matched_prioritzed when calling r2dii.analysis
+matched_prio_non_standard_cols <- names(matched_prioritized)[!names(matched_prioritized) %in% col_standard_matched_prio_all_groups]
 
 ## prepare TMS company level P4B results for aggregation----
 tms_result_for_aggregation <- target_market_share(
   data = matched_prioritized %>%
-    dplyr::select(-dplyr::all_of(by_groups)),
+    dplyr::select(-dplyr::all_of(matched_prio_non_standard_cols)),
   abcd = abcd,
   scenario = scenario_input_tms,
   region_isos = region_isos_select,
@@ -231,61 +205,6 @@ tms_result_for_aggregation <- target_market_share(
   weight_production = FALSE,
   increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
 )
-
-# TODO: figure out more efficient way to calculate benchmarks
-# tms_result_for_aggregation_benchmark <- NULL
-
-# TODO: simplify this one too
-# unique_benchmarks_tms <- unique(matched_benchmark$benchmark_region)
-
-# TODO: needs proper overhaul, memory issues
-# for (i in unique_benchmarks_tms) {
-#   tryCatch(
-#     {
-#       benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
-#
-#       allowed_countries_i <- region_isos_complete %>%
-#         dplyr::filter(
-#           .data$source == .env$scenario_source_input,
-#           .data$region == .env$benchmark_region_i,
-#         ) %>%
-#         dplyr::pull(.data$isos) %>%
-#         toupper()
-#
-#       abcd_benchmark_region_i <- abcd %>%
-#         dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
-#
-#       tms_result_for_aggregation_benchmark_i <- target_market_share(
-#         data = matched_benchmark %>%
-#           dplyr::filter(.data$benchmark_region == i) %>%
-#           dplyr::select(-"benchmark_region"),
-#         abcd = abcd_benchmark_region_i,
-#         scenario = scenario_input_tms,
-#         region_isos = region_isos_select,
-#         by_company = FALSE,
-#         weight_production = TRUE,
-#         increasing_or_decreasing = increasing_or_decreasing_aggregate_alignment
-#       )
-#
-#       tms_result_for_aggregation_benchmark_i <- tms_result_for_aggregation_benchmark_i %>%
-#         dplyr::mutate(benchmark_region = .env$i)
-#
-#       tms_result_for_aggregation_benchmark <- tms_result_for_aggregation_benchmark %>%
-#         dplyr::bind_rows(tms_result_for_aggregation_benchmark_i)
-#
-#     },
-#     error = function(e) {
-#       log_text <- glue::glue("{Sys.time()} - region: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
-#       write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
-#     }
-#   )
-# }
-
-# bind the TMS results from the loan book and benchmark PACTA runs for further
-# aggregation
-tms_result_for_aggregation <- tms_result_for_aggregation #%>%
-  # TODO: figure out more efficient way to calculate benchmarks
-  # dplyr::bind_rows(tms_result_for_aggregation_benchmark)
 
 ## aggregate TMS P4B results to company level alignment metric----
 # calculate aggregation for the loan book
@@ -329,63 +248,14 @@ matched_prioritized_temp <- matched_prioritized %>%
 
 sda_result_for_aggregation <- target_sda(
   data = matched_prioritized_temp %>%
-    dplyr::select(-dplyr::all_of(by_groups)),
+    dplyr::select(-dplyr::all_of(matched_prio_non_standard_cols)),
   abcd = abcd,
   co2_intensity_scenario = scenario_input_sda,
   by_company = TRUE,
   region_isos = region_isos_select
 )
 
-# TODO figure out more efficient way to calculate benchmarks
-# sda_result_for_aggregation_benchmark <- NULL
-#
-# unique_benchmarks_sda <- unique(matched_benchmark$group_id)
-#
-# for (i in unique_benchmarks_sda) {
-#   tryCatch(
-#     {
-#       benchmark_region_i <- gsub("benchmark_corporate_economy_", "", i)
-#
-#       allowed_countries_i <- region_isos_complete %>%
-#         dplyr::filter(
-#           .data$source == .env$scenario_source_input,
-#           .data$region == .env$benchmark_region_i,
-#         ) %>%
-#         dplyr::pull(.data$isos) %>%
-#         toupper()
-#
-#       abcd_benchmark_region_i <- abcd %>%
-#         dplyr::filter(.data$plant_location %in% .env$allowed_countries_i)
-#
-#       sda_result_for_aggregation_benchmark_i <- target_sda(
-#         data = matched_benchmark %>%
-#           dplyr::filter(.data$group_id == i) %>%
-#           dplyr::select(-"group_id"),
-#         abcd = abcd_benchmark_region_i,
-#         co2_intensity_scenario = scenario_input_sda,
-#         by_company = TRUE,
-#         region_isos = region_isos_select
-#       )
-#
-#       sda_result_for_aggregation_benchmark_i <- sda_result_for_aggregation_benchmark_i %>%
-#         dplyr::mutate(group_id = .env$i)
-#
-#       sda_result_for_aggregation_benchmark <- sda_result_for_aggregation_benchmark %>%
-#         dplyr::bind_rows(sda_result_for_aggregation_benchmark_i)
-#
-#     },
-#     error = function(e) {
-#       log_text <- glue::glue("{Sys.time()} - group: {i} Problem in preparing data for benchmark aggregation. Skipping! \n")
-#       write(log_text, file = file.path(output_path_aggregated, "error_messages.txt"), append = TRUE)
-#     }
-#   )
-# }
-
-# bind the SDA results from the loan book and benchmark PACTA runs for further
-# aggregation
 sda_result_for_aggregation <- sda_result_for_aggregation %>%
-  # TODO: figure out more efficient way to calculate benchmarks
-  # dplyr::bind_rows(sda_result_for_aggregation_benchmark) %>%
   dplyr::filter(.data$year >= .env$start_year)
 
 ## aggregate SDA P4B results to company level alignment metric----
@@ -443,119 +313,31 @@ write_alignment_metric_to_csv <- function(data,
 }
 
 # net
-## meta
-aggregated_alignment_net_meta <- company_alignment_net %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_total,
-    level = "net"
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_net_meta,
-  output_dir = output_path_aggregated,
-  level = "net",
-)
-
-## group_id
-aggregated_alignment_net_group_id <- company_alignment_net %>%
+aggregated_alignment_net <- company_alignment_net %>%
   aggregate_alignment_loanbook_exposure(
     matched = matched_total,
     level = "net",
-    .by = "group_id"
+    .by = by_groups
   )
 
 write_alignment_metric_to_csv(
-  data = aggregated_alignment_net_group_id,
+  data = aggregated_alignment_net,
   output_dir = output_path_aggregated,
   level = "net",
-  .by = "group_id"
-)
-
-## foo
-aggregated_alignment_net_foo <- company_alignment_net %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_total,
-    level = "net",
-    .by = "foo"
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_net_foo,
-  output_dir = output_path_aggregated,
-  level = "net",
-  .by = "foo"
-)
-
-## group_id, foo
-aggregated_alignment_net_group_id_foo <- company_alignment_net %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_total,
-    level = "net",
-    .by = c("group_id", "foo")
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_net_group_id_foo,
-  output_dir = output_path_aggregated,
-  level = "net",
-  .by = c("group_id", "foo")
+  .by = by_groups
 )
 
 # buildout / phaseout
-## meta
-aggregated_alignment_bo_po_meta <- company_alignment_bo_po_tms %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_prioritized,
-    level = "bo_po"
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_bo_po_meta,
-  output_dir = output_path_aggregated,
-  level = "bo_po"
-)
-
-## group_id
-aggregated_alignment_bo_po_group_id <- company_alignment_bo_po_tms %>%
+aggregated_alignment_bo_po <- company_alignment_bo_po_tms %>%
   aggregate_alignment_loanbook_exposure(
     matched = matched_prioritized,
     level = "bo_po",
-    .by = "group_id"
+    .by = by_groups
   )
 
 write_alignment_metric_to_csv(
-  data = aggregated_alignment_bo_po_group_id,
+  data = aggregated_alignment_bo_po,
   output_dir = output_path_aggregated,
   level = "bo_po",
-  .by = "group_id"
-)
-
-## foo
-aggregated_alignment_bo_po_foo <- company_alignment_bo_po_tms %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_prioritized,
-    level = "bo_po",
-    .by = "foo"
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_bo_po_foo,
-  output_dir = output_path_aggregated,
-  level = "bo_po",
-  .by = "foo"
-)
-
-## group_id, foo
-aggregated_alignment_bo_po_group_id_foo <- company_alignment_bo_po_tms %>%
-  aggregate_alignment_loanbook_exposure(
-    matched = matched_prioritized,
-    level = "bo_po",
-    .by = c("group_id", "foo")
-  )
-
-write_alignment_metric_to_csv(
-  data = aggregated_alignment_bo_po_group_id_foo,
-  output_dir = output_path_aggregated,
-  level = "bo_po",
-  .by = c("group_id", "foo")
+  .by = by_groups
 )
