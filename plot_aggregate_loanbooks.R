@@ -106,7 +106,7 @@ if (length(by_groups) <= 1) {
       company_aggregated_alignment_net,
       region = "global",
       year = 2027,
-      by_group = by_groups,
+      group_var = by_groups,
       middle_node = "sector"
     )
   } else {
@@ -130,14 +130,14 @@ if (length(by_groups) <= 1) {
 
     plot_sankey(
       data_sankey_sector,
-      by_group = by_groups,
+      group_var = by_groups,
       save_png_to = output_path_aggregated,
       png_name = glue::glue("plot_{output_file_sankey_sector}.png"),
       nodes_order_from_data = TRUE
     )
   }
 } else {
-  print("Sankey plot cannot process more than one by_group at a time. Skipping!")
+  print("Sankey plot cannot process more than one group_var at a time. Skipping!")
 }
 
 if (length(by_groups) <= 1) {
@@ -146,7 +146,7 @@ if (length(by_groups) <= 1) {
       company_aggregated_alignment_net,
       region = "global",
       year = 2027,
-      by_group = by_groups,
+      group_var = by_groups,
       middle_node = "name_abcd",
       middle_node2 = "sector"
     )
@@ -171,13 +171,13 @@ if (length(by_groups) <= 1) {
 
     plot_sankey(
       data_sankey_company_sector,
-      by_group = by_groups,
+      group_var = by_groups,
       save_png_to = output_path_aggregated,
       png_name = glue::glue("plot_{output_file_sankey_company_sector}.png")
     )
   }
 } else {
-  print("Sankey plot cannot process more than one by_group at a time. Skipping!")
+  print("Sankey plot cannot process more than one group_var at a time. Skipping!")
 }
 
 ### scatter plot alignment by exposure and sector comparison----
@@ -194,7 +194,7 @@ if (length(by_groups) <= 1) {
         year = year_scatter_alignment_exposure,
         region = region_scatter_alignment_exposure,
         scenario = scenario_select,
-        by_group = by_groups,
+        group_var = by_groups,
         exclude_groups = "benchmark"
       )
 
@@ -216,7 +216,7 @@ if (length(by_groups) <= 1) {
       plot_scatter_alignment_exposure(
         floor_outliers = -1,
         cap_outliers = 1,
-        by_group = by_groups,
+        group_var = by_groups,
         currency = currency
       )
 
@@ -230,7 +230,7 @@ if (length(by_groups) <= 1) {
     )
   }
 } else {
-  print("Scatter plot exposure by alignment cannot process more than one by_group at a time. Skipping!")
+  print("Scatter plot exposure by alignment cannot process more than one group_var at a time. Skipping!")
 }
 
 
@@ -252,7 +252,7 @@ if (length(by_groups) == 1) {
       year = year_scatter,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_group
     )
 
@@ -288,7 +288,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO cannot process more than one by_group at a time. Skipping!")
+    glue::glue("Scatter plot BO/PO cannot process more than one group_var at a time. Skipping!")
   )
 }
 
@@ -305,7 +305,7 @@ if (length(by_groups) == 1) {
       year = year_scatter,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_group
     )
 
@@ -342,7 +342,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO cannot process more than one by_group at a time. Skipping!")
+    glue::glue("Scatter plot BO/PO cannot process more than one group_var at a time. Skipping!")
   )
 }
 
@@ -362,7 +362,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_group
     )
 
@@ -400,7 +400,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO cannot process more than one by_group at a time. Skipping!")
+    glue::glue("Scatter plot BO/PO cannot process more than one group_var at a time. Skipping!")
   )
 }
 
@@ -416,7 +416,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_group
     )
 
@@ -454,7 +454,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO cannot process more than one by_group at a time. Skipping!")
+    glue::glue("Scatter plot BO/PO cannot process more than one group_var at a time. Skipping!")
   )
 }
 
@@ -496,7 +496,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_bo_po,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if(nrow(data_timeline_automotive) > 0) {
@@ -515,7 +515,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -529,7 +529,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # build-out / phase-out for power
@@ -549,7 +549,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_bo_po,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_power) > 0) {
@@ -568,7 +568,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -582,7 +582,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for automotive
@@ -602,7 +602,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_automotive) > 0) {
@@ -621,7 +621,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -635,7 +635,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for coal
@@ -655,7 +655,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_coal > 0)) {
@@ -674,7 +674,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -688,7 +688,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for oil & gas
@@ -708,7 +708,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_oil_and_gas) > 0) {
@@ -727,7 +727,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -741,7 +741,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for power
@@ -761,7 +761,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_power) > 0) {
@@ -780,7 +780,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -794,7 +794,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for aviation
@@ -814,7 +814,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_aviation) > 0) {
@@ -833,7 +833,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -847,7 +847,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for cement
@@ -867,7 +867,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_cement) > 0) {
@@ -886,7 +886,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -900,7 +900,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 # net aggregate alignment for steel
@@ -920,7 +920,7 @@ if (length(by_groups) == 1) {
       loanbook_exposure_aggregated_alignment_net,
       sector = sector_timeline,
       region = region_timeline,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i)
 
     if (nrow(data_timeline_steel) > 0) {
@@ -939,7 +939,7 @@ if (length(by_groups) == 1) {
         scenario_source = scenario_source_input,
         scenario = scenario_select,
         region = region_timeline,
-        by_group = by_groups
+        group_var = by_groups
       )
 
       ggplot2::ggsave(
@@ -953,7 +953,7 @@ if (length(by_groups) == 1) {
     }
   }
 } else {
-  print("Timeline plot only available for by_group of length 1. Skipping!")
+  print("Timeline plot only available for group_var of length 1. Skipping!")
 }
 
 ### scatter plot for company level comparison----
@@ -985,7 +985,7 @@ if (length(by_groups) == 1) {
       year = year_scatter,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i,
       data_level = data_level_company
     )
@@ -1024,7 +1024,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO only available for by_group of length 1. Skipping!")
+    glue::glue("Scatter plot BO/PO only available for group_var of length 1. Skipping!")
   )
 }
 
@@ -1047,7 +1047,7 @@ if (length(by_groups) == 1) {
       year = year_scatter,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       groups_to_plot = i,
       data_level = data_level_company
     )
@@ -1086,7 +1086,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Scatter plot BO/PO only available for by_group of length 1. Skipping!")
+    glue::glue("Scatter plot BO/PO only available for group_var of length 1. Skipping!")
   )
 }
 
@@ -1112,7 +1112,7 @@ if (length(by_groups) == 1) {
       company_aggregated_alignment_net,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_company,
       groups_to_plot = i
     )
@@ -1152,7 +1152,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Animated scatter plot BO/PO only available for by_group of length 1. Skipping!")
+    glue::glue("Animated scatter plot BO/PO only available for group_var of length 1. Skipping!")
   )
 }
 
@@ -1174,7 +1174,7 @@ if (length(by_groups) == 1) {
       company_aggregated_alignment_net,
       sector = sector_scatter,
       region = region_scatter,
-      by_group = by_groups,
+      group_var = by_groups,
       data_level = data_level_company,
       groups_to_plot = i
     )
@@ -1214,7 +1214,7 @@ if (length(by_groups) == 1) {
   }
 } else {
   print(
-    glue::glue("Animated scatter plot BO/PO only available for by_group of length 1. Skipping!")
+    glue::glue("Animated scatter plot BO/PO only available for group_var of length 1. Skipping!")
   )
 }
 
