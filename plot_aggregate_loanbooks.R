@@ -40,7 +40,7 @@ if (file.exists(here::here(".env"))) {
 
   by_groups <- Sys.getenv("BY_GROUP")
   if (by_groups == "NULL") {by_groups <- NULL}
-  if (grepl(",", by_groups)) {
+  if (length(by_groups) >= 1) {
     by_groups <- gsub(" ", "", unlist(strsplit(by_groups, split = ",")))
   }
 
@@ -238,10 +238,10 @@ if (length(by_groups) <= 1) {
 ### scatter plot for group level comparison----
 year_scatter <- 2027
 region_scatter <- region_select
-data_level_group <- "bank"
+data_level_group <- "group_var"
 # automotive
 sector_scatter <- "automotive"
-if (length(by_groups) == 1) {
+if (length(by_groups) <= 1) {
   if (
     nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
     nrow(loanbook_exposure_aggregated_alignment_net) > 0
@@ -294,7 +294,7 @@ if (length(by_groups) == 1) {
 
 # power
 sector_scatter <- "power"
-if (length(by_groups) == 1) {
+if (length(by_groups) <= 1) {
   if (
     nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
     nrow(loanbook_exposure_aggregated_alignment_net) > 0
@@ -349,10 +349,10 @@ if (length(by_groups) == 1) {
 
 ### animated scatter plot for group level comparison----
 region_scatter <- region_select
-data_level_group <- "bank"
+data_level_group <- "group_var"
 # automotive
 sector_scatter <- "automotive"
-if (length(by_groups) == 1) {
+if (length(by_groups) <= 1) {
   if (
     nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
     nrow(loanbook_exposure_aggregated_alignment_net) > 0
@@ -406,7 +406,7 @@ if (length(by_groups) == 1) {
 
 # power
 sector_scatter <- "power"
-if (length(by_groups) == 1) {
+if (length(by_groups) <= 1) {
   if (
     nrow(loanbook_exposure_aggregated_alignment_bo_po) > 0 &
     nrow(loanbook_exposure_aggregated_alignment_net) > 0
