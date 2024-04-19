@@ -53,8 +53,6 @@ if (file.exists(here::here(".env"))) {
 
 # load required data----
 
-# TODO: check this works appropriately for meta level / by_group = NULL
-# currently plots do not handle by_group == NULL well, as they cannot turn NULL into a symbol
 if (is.null(by_group)) {
   file_by_group <- ""
 } else {
