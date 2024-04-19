@@ -183,7 +183,6 @@ if (length(by_group) <= 1) {
 ### scatter plot alignment by exposure and sector comparison----
 year_scatter_alignment_exposure <- 2027
 region_scatter_alignment_exposure <- region_select
-# TODO: this should come from the loan book
 currency <- unique(company_aggregated_alignment_net$loan_size_outstanding_currency)
 if (length(by_group) <= 1) {
   if (

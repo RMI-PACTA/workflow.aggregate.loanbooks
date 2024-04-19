@@ -61,9 +61,6 @@ if (file.exists(here::here(".env"))) {
        explained in the README.md")
 }
 
-# TODO: add check if all files exist, resort to test files if not
-
-
 # load input data----
 region_isos_complete <- r2dii.data::region_isos
 
@@ -283,9 +280,6 @@ company_alignment_net_sda %>%
 # loan book to derive some high level summary statistics on the loan book level
 company_alignment_net <- company_alignment_net_tms %>%
   dplyr::bind_rows(company_alignment_net_sda)
-
-# TODO: here we basically have a company DB that needs to be joined with matched prio
-# do we also want company level alignment metric matched to loan books are groups in a non-aggregated way?
 
 # show exposures (n companies and loan size) by alignment with given scenario
 write_alignment_metric_to_csv <- function(data,
