@@ -48,10 +48,10 @@ if (file.exists(here::here(".env"))) {
     output_path_aggregated <- file.path(output_path, sector_split_type_select, "aggregated")
   }
 
-  by_groups <- Sys.getenv("BY_GROUP")
-  if (by_groups == "NULL") {by_groups <- NULL}
-  if (length(by_groups) >= 1) {
-    by_groups <- gsub(" ", "", unlist(strsplit(by_groups, split = ",")))
+  by_group <- Sys.getenv("BY_GROUP")
+  if (by_group == "NULL") {by_group <- NULL}
+  if (length(by_group) >= 1) {
+    by_group <- gsub(" ", "", unlist(strsplit(by_group, split = ",")))
   }
 
   dir.create(output_path_aggregated, recursive = TRUE)
@@ -311,14 +311,14 @@ aggregated_alignment_net <- company_alignment_net %>%
   aggregate_alignment_loanbook_exposure(
     matched = matched_total,
     level = "net",
-    .by = by_groups
+    .by = by_group
   )
 
 write_alignment_metric_to_csv(
   data = aggregated_alignment_net,
   output_dir = output_path_aggregated,
   level = "net",
-  .by = by_groups
+  .by = by_group
 )
 
 # buildout / phaseout
@@ -326,12 +326,12 @@ aggregated_alignment_bo_po <- company_alignment_bo_po_tms %>%
   aggregate_alignment_loanbook_exposure(
     matched = matched_prioritized,
     level = "bo_po",
-    .by = by_groups
+    .by = by_group
   )
 
 write_alignment_metric_to_csv(
   data = aggregated_alignment_bo_po,
   output_dir = output_path_aggregated,
   level = "bo_po",
-  .by = by_groups
+  .by = by_group
 )

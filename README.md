@@ -54,6 +54,9 @@ PARAM_TIME_FRAME=5
 # regions must be available for the selected scenario
 PARAM_BENCHMARK_REGIONS="global,european union"
 REMOVE_INACTIVE_COMPANIES=TRUE
+
+# level of aggregattion
+BY_GROUP="group_id"
 ```
 
 These configurations set up required directories (prefixed `DIR_`), input files (prefixed `FILENAME_`) and project parameters (prefixed `PARAM_`) which will all be used in the work flow. Please ensure to set directories and file names that exist in your work environment and that the paramters are consistent with the input files available to you.
@@ -90,12 +93,22 @@ To generate PACTA aggregate metrics, you can simply run the `run_aggregate_loanb
 
 - set up project configurations
 - load required input files
-- create a matched data set for calculations of benchmarks (no manual
-  matching required)
 - prepare unweighted PACTA for Banks results at the company level as a
   preparatory step for calculating the alignment metrics.
 - calculate alignment metrics both at the company level and the group
   level
+- you can select at which level to aggregate the loan books, using the `BY_GROUP`
+  parameter
+  - Setting this parameter to NULL will generate aggregated results at the meta
+  loan book level (across all input loan books)
+  - Setting the parameter to any other variable that exists in the
+  matched_prioritized data set will aggregate the results by the groups
+  indicated in that variable. For example, if you set `BY_GROUP="group_id"`, the
+  script will return one result for each group_id. It is also possible to
+  calculate results for a combination of group variables, i.e. setting
+  `BY_GROUP="foo, bar"`. This will return one result for each combination of
+  groups between the variables `foo` and `bar`, assuming both are present in the
+  `matched_prioritized` data.
   
 To generate the corresponding plots, you can run the script `plot_aggregate_loanbooks.R`, which takes as input the outputs of the previous script.
 
@@ -105,6 +118,9 @@ To generate the corresponding plots, you can run the script `plot_aggregate_loan
   - Scatter plot of the loan books at the sector level comparing the net alignment metric by financial exposure
   - Timeline plot that shows the forward-looking trend of the aligment metric over time (net, buildout and phaseout)
   - Scatter plot that allows for peer comparison of alignment metric across companies or groups (automotive and power sectors only)
+- The `BY_GROUP` parameter will determine for which groups the plots should be generated. At the moment, only `BY_GROUP` settings with maximum one value will generate plots, passing more than one `BY_GROUP` will
+print information that plots cannot be generated. Before generating plots for a given `BY_GROUP`,
+the results for that variable must have been generated using `run_aggregate_loanbooks.R`.
 
 ### Optional: Use own sector classification system for matching loan books
 
