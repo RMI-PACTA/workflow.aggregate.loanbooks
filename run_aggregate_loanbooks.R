@@ -50,7 +50,7 @@ if (file.exists(here::here(".env"))) {
 
   by_groups <- Sys.getenv("BY_GROUP")
   if (by_groups == "NULL") {by_groups <- NULL}
-  if (grepl(",", by_groups)) {
+  if (length(by_groups) >= 1) {
     by_groups <- gsub(" ", "", unlist(strsplit(by_groups, split = ",")))
   }
 
