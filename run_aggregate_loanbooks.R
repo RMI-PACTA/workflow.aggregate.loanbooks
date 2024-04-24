@@ -78,7 +78,6 @@ scenario_input_sda <- readr::read_csv(
   col_select = dplyr::all_of(col_select_scenario_sda)
 )
 
-# abcd <- abcd_test_data
 abcd <- readr::read_csv(
   file.path(input_path_abcd),
   col_types = col_types_abcd,
