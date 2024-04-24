@@ -96,8 +96,7 @@ matched_lbk %>%
 # prioritization.
 matched_lbk_manual <- readr::read_csv(
   file.path(input_path_matched, glue::glue("matched_lbk_{group_name}_manual.csv")),
-  col_types = col_types_matched_manual,
-  col_select = dplyr::all_of(col_select_matched_manual)
+  col_types = col_types_matched_manual
 )
 
 ## prioritize----
