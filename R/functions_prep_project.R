@@ -380,7 +380,7 @@ validate_input_data_sample_raw_loanbook_from_abcd <- function(abcd,
     expected_columns = c(
       "company_id", "name_company", "lei", "is_ultimate_owner", "sector",
       "technology", "plant_location", "year", "production", "production_unit",
-      "emission_factor", "emission_factor_unit"#, "ald_timestamp"
+      "emission_factor", "emission_factor_unit"
     )
   )
 
