@@ -44,8 +44,7 @@ col_types_abcd <- readr::cols_only(
   production = "n",
   production_unit = "c",
   emission_factor = "n",
-  emission_factor_unit = "c",
-  ald_timestamp = "c"
+  emission_factor_unit = "c"
 )
 col_select_abcd <- names(col_types_abcd[["cols"]])
 

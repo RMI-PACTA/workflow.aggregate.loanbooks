@@ -155,7 +155,7 @@ for (region_i in available_regions) {
       production = sum(.data$production, na.rm = TRUE),
       .by = c(
         "company_id", "name_company", "lei", "is_ultimate_owner", "sector",
-        "technology", "year", "production_unit", "emission_factor_unit", "ald_timestamp"
+        "technology", "year", "production_unit", "emission_factor_unit"
       )
     )
 
